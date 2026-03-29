@@ -1,0 +1,14 @@
+model: castle_color_model
+batch_size: 32
+lr: 0.0004
+weight_decay: 0.00005
+epochs: 50
+num_classes: 4
+augments_per_image: 20
+rgb: True
+normalize: False
+label_dict:
+  'red': 0
+  'green': 1
+  'blue': 2
+  'yellow': 3

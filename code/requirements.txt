@@ -1,0 +1,14 @@
+numpy
+opencv-python
+Pillow
+torch
+torchvision
+PyYAML
+scikit-learn
+matplotlib
+tensorboard
+kivy 
+xcamera
+pygame
+onnxscript
+onnxruntime

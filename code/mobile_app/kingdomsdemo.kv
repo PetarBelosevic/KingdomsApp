@@ -1,0 +1,151 @@
+# --------------------------------------------------
+
+<RootScreenManager>:
+	StartScreen:
+		name: "start"
+	GalleryScreen:
+		name: "gallery"
+	ProcessedReviewScreen:
+		name: "processed_review"
+	GridScreen:
+		name: "grid"
+	ResultScreen:
+		name: "result"
+
+# --------------------------------------------------
+
+# <BasePage@Screen>:
+# 	BoxLayout:
+# 		orientation: "vertical"
+# 		spacing: dp(10)
+# 		padding: dp(12)
+
+<StartScreen>:
+	BoxLayout:
+		orientation: "vertical"
+		spacing: dp(16)
+		padding: dp(16)
+		Label:
+			text: "Image Input"
+			font_size: "24sp"
+			size_hint_y: None
+			height: dp(50)
+		Label:
+			text: "Choose how to provide an image"
+			size_hint_y: None
+			height: dp(30)
+		Button:
+			text: "Take New Photo"
+			size_hint_y: None
+			height: dp(48)
+			on_release: app.take_new_photo()
+		Button:
+			text: "Load Existing Photo"
+			size_hint_y: None
+			height: dp(48)
+			on_release: app.root.current = "gallery"
+		Widget:
+
+# --------------------------------------------------
+
+<GalleryScreen>:
+	BoxLayout:
+		orientation: "vertical"
+		spacing: dp(10)
+		Label:
+			text: "Select Existing Photo"
+			size_hint_y: None
+			height: dp(40)
+		FileChooserListView:
+			id: chooser
+			path: "/"
+			filters: ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.webp"]
+			on_selection: app.on_gallery_selection(self.selection)
+		BoxLayout:
+			size_hint_y: None
+			height: dp(48)
+			spacing: dp(10)
+			Button:
+				text: "Back"
+				on_release: app.reset_to_start(keep_temp=False)
+			Button:
+				text: "Use Selected"
+				on_release: app.use_selected_from_gallery()
+
+# --------------------------------------------------
+
+<ProcessedReviewScreen>:
+	BoxLayout:
+		orientation: "vertical"
+		spacing: dp(10)
+		Label:
+			text: "Processed Image Review"
+			size_hint_y: None
+			height: dp(40)
+		Image:
+			id: processed_image
+			source: app.processed_image_path if app.processed_image_path else ""
+			allow_stretch: True
+			keep_ratio: True
+		Label:
+			text: app.processing_status
+			size_hint_y: None
+			height: dp(30)
+		BoxLayout:
+			size_hint_y: None
+			height: dp(48)
+			spacing: dp(10)
+			Button:
+				text: "Not Good"
+				on_release: app.reset_to_start(keep_temp=False)
+			Button:
+				text: "Looks Good"
+				on_release: app.run_second_processing()
+
+# --------------------------------------------------
+
+<GridScreen>:
+	BoxLayout:
+		orientation: "vertical"
+		spacing: dp(10)
+		Label:
+			text: "Review / Edit 5x6 Symbol Grid"
+			size_hint_y: None
+			height: dp(40)
+		GridLayout:
+			id: symbol_grid
+			cols: 6
+			rows: 5
+			spacing: dp(4)
+		BoxLayout:
+			size_hint_y: None
+			height: dp(48)
+			spacing: dp(10)
+			Button:
+				text: "Reset"
+				on_release: app.reset_to_start(keep_temp=False)
+			Button:
+				text: "Approve Grid"
+				on_release: app.approve_grid_and_calculate()
+
+# --------------------------------------------------
+
+<ResultScreen>:
+	BoxLayout:
+		orientation: "vertical"
+		spacing: dp(10)
+		Label:
+			text: "Output"
+			size_hint_y: None
+			height: dp(40)
+		Label:
+			id: result_label
+			text: app.result_text
+			halign: "left"
+			valign: "top"
+			text_size: self.size
+		Button:
+			text: "Confirm And Start Over"
+			size_hint_y: None
+			height: dp(48)
+			on_release: app.reset_to_start(keep_temp=True)

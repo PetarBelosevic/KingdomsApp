@@ -1,0 +1,43 @@
+{
+    "card_castle_model": {
+        "0": "card",
+        "1": "castle",
+        "2": "empty"
+    },
+    "castle_color_model": {
+        "0": "red",
+        "1": "green",
+        "2": "blue",
+        "3": "yellow"
+    },
+    "castle_rank_model": {
+        "0": 1,
+        "1": 2,
+        "2": 3,
+        "3": 4
+    },
+    "number_card_model": {
+        "0": -6,
+        "1": -5,
+        "2": -4,
+        "3": -3,
+        "4": -2,
+        "5": -1,
+        "6": 1,
+        "7": 2,
+        "8": 3,
+        "9": 4,
+        "10": 5,
+        "11": 6
+    },
+    "number_special_card_model": {
+        "0": "number",
+        "1": "special"
+    },
+    "special_card_model": {
+        "0": "dragon",
+        "1": "gold mine",
+        "2": "mountain",
+        "3": "wizard"
+    }
+}

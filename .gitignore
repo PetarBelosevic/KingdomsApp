@@ -1,0 +1,10 @@
+code/dataset/*
+code/training/experiments/card_castle_model/run_*
+code/training/experiments/castle_color_model/run_*
+code/training/experiments/castle_rank_model/run_*
+code/training/experiments/number_card_model/run_*
+code/training/experiments/number_special_card_model/run_*
+code/training/experiments/special_card_model/run_*
+.venv
+*__pycache__*
+*.pyc

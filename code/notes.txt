@@ -1,0 +1,211 @@
+IZVORI:
+	https://powergatesoftware.com/tech-blog/android-app-development-using-python/
+	https://www.youtube.com/watch?v=zAy7bqFUJLg
+	https://www.youtube.com/watch?v=yr7n0C2tspI
+	https://youtu.be/bMHK6NDVlCM?si=xbmur9tEc1fp73i0 - kivy tutorial
+	https://www.tutorialspoint.com/kivy/kivy-storage.html - kivy storage
+	https://stackoverflow.com/questions/77401316/why-am-i-getting-double-labels
+	https://dzone.com/articles/edge-ai-tensorflow-lite-vs-onnx-runtime-vs-pytorch
+	https://www.tug.org/pracjourn/2007-4/walden/color.pdf
+	https://www.youtube.com/watch?v=JZeaRTwk5hI
+
+TODO:
+	- editing model doesn't work
+	- photo capture and gallery selection for android
+	- apk building and testing on android device
+
+
+from kivy.resources import resource_find
+model_path = resource_find("onnx_models/model1.onnx")
+
+BUILDOZER:
+	requirements = python3,kivy,numpy,onnxruntime
+	source.include_exts = py,png,jpg,kv,atlas,onnx
+
+	android.permissions = CAMERA
+	android.api = 21  # Camera2 requires 21+
+
+APP:
+	<STARTING_SCREEN>:
+		- if there is an existing game: 
+			load data
+			goto <ROUND_RESULT_SCREEN> 
+		- else:
+			button New Game -> initialize data; goto <IMAGE_METHOD_SCREEN>
+			button Anylize Individual Image -> goto <IMAGE_METHOD_SCREEN>
+
+	<IMAGE_METHOD_SCREEN>:
+		- button Take Photo -> open camera, capture image, goto <BOARD_DETECTION>
+		- button Select from Gallery -> open gallery, select image, goto <BOARD_DETECTION>
+
+	<BOARD_DETECTION>:
+		- process image (detect and rectify board)
+		- goto <DETECTED_BOARD_SCREEN>
+
+	<DETECTED_BOARD_SCREEN>:
+		- display rectified board image
+		- button Analyze Board -> run ML pipeline on cropped cells, goto <BOARD_MODEL_SCREEN>
+		- button Retake/Reselect -> goto <IMAGE_METHOD_SCREEN>
+
+	<BOARD_MODEL_SCREEN>:
+		- display detected cell types, castle colors/ranks, card numbers/specials in a grid layout
+		- allow user to tap on any cell to edit prediction
+		- button Confirm -> goto <CALCULATE_SCORES>
+
+	<CALCULATE_SCORES>:
+		- calculate scores based on confirmed board state
+		- goto <ROUND_RESULT_SCREEN>
+	
+	<ROUND_RESULT_SCREEN>:
+		- display round number if in game mode
+		- display scores
+		- internaly save game state
+		- button New Game -> initialize data; goto <IMAGE_METHOD_SCREEN>
+		- button Next -> if round < 3: goto <IMAGE_METHOD_SCREEN>; else: popup with the winner message; goto <STARTING_SCREEN>
+	
+
+APP TECHNOLOGY STACK:
+	- Kotlin + Chaquopy for Python integration (board detection) + Pytorch Mobile
+	- Kivy (all Python, but less performant and native-feeling)
+	- Kotlin with OpenCV (board detection) + Pytorch Mobile
+
+	- Python (for ML models and possibly backend logic)
+	- Kivy or BeeWare (for cross-platform mobile app development)
+	- OpenCV (for image processing tasks)
+	- TensorFlow/Keras or PyTorch (for building and training ML models)
+
+	Plyer - camera and gallery
+
+APP PIPELINE 
+	1. locate and rectify the board 
+	2. crop out every position on the board 
+	3. for every position follow this diagram: 
+		castle/card? 
+			-(castle) -> classify castle (color and type of castle) 
+			-(card) -> 
+				has a number on it? 
+					-(yes) -> crop out the number and classify the card based on it 
+					-(no) -> classify the card based on the
+
+
+NUMBER RECOGNITION CHALLENGE:
+	Step 1: “Does the card have a number?”
+	You can do this in multiple ways:
+		Tiny CNN classifier
+		OR classical OCR presence check
+		OR edge/contrast heuristic (numbers are high-contrast)
+
+
+IMPROVEMENT IDEAS:
+	One architectural improvement (optional but powerful)
+		Add confidence-based fallback logic:
+			If a classifier's confidence < threshold:
+				re-run alternative classifier or mark cell as “unknown” and request user confirmation
+			
+
+DATASET SIZE ESTIMATION:
+	How much data you actually need (realistic numbers)
+		Castle vs Card vs Empty
+			~30-50 real photos total
+		Heavy augmentation → thousands of samples
+		
+		Castle classification
+			~5-10 photos per castle type per color
+		Augment x50-100
+		
+		Digit classifier
+			~10-20 real digit crops total
+		Augment heavily
+		
+		Special cards
+			~5 photos per card
+		Augment x100
+		
+		Total real photos needed:
+		➡️ ~100-150 photos, not thousands
+
+
+DATASET ORGANIZATION:
+	dataset/
+	├── views/
+	│   ├── cell_type/
+	│   │   ├── train.txt
+	│   │   ├── val.txt
+	│   │   └── test.txt
+	│
+	│   ├── castle/
+	│   │   ├── images/   (symlinks or references)
+	│   │   ├── labels.json
+	│
+	│   ├── card_number/
+	│   │   ├── images/
+	│   │   ├── labels.json
+	│
+	│   ├── card_special/
+	│   │   ├── images/
+	│   │   ├── labels.json
+
+	“To avoid data leakage due to strong intra-board visual correlation, dataset splitting was performed at the original board image level, ensuring that all cells derived from a given board instance belong to the same dataset partition.”
+	dataset/
+		train/
+			images/
+			labels.json
+			views/
+				cell_type.json
+				castle_color.json
+				card_value.json
+		val/
+		test/
+
+
+GROUND TRUTH LABEL ORGANIZATION:
+	cell_type
+	├── castle
+	│    ├── player
+	│    └── rank
+	└── card
+		├── number
+		│    └── value
+		└── special
+			└── type
+
+
+slike su dimenzija 117x117 -> smanjiti?
+
+korištenje predtreniranih modela (npr. MobileNetV2)?
+1 backbone za generiranje značajki, klasifikacijske glave za svaki zadatak?
+
+kod validacije dodati kompletnu matricu konfuzije i po potrebi dodatne metrike (precision, recall, F1-score) za detaljniju analizu performansi modela po klasi.
+
+konverzija slike u tezore potrebna?
+
+detekciaj ploče: 
+	minimizirati morfološku ekspanziju!
+	veliki blur, strogi tresholdi u Cannyju
+
+
+TODO:
+	još slika <
+	namjestiti konfiguraciju treniranja (batch size, learning rate, augmentacije)
+	pokrenuti treniranje
+	kvalitetniji data split
+
+augmentacija:
+	relative brightnes change
+	dodati još logike
+
+modeli:
+	card_castle_model -> DONE (run 15, epoha 98)
+	castle_color_model -> DONE (run 6, epoha 42)
+	castle_rank_model  -> DONE (run 39, epoha 68) 
+		mozda skoro rijeseno
+		izgleda da više faila na zelenim i žutim dvorcima
+		also često precijeni veličinu dvorca (predicta veći rank nego što je stvarno)
+		rankovi 2 i 3 ga muče
+		najbolji do sad: 15, 22, 24!, 25! (0.9302), 28! (0.9419, 100 epoha), 29! (0.9651 (65. epoha), 70 epoha)
+	number_card_model -> DONE (run 2, epoha 52)
+	special_card_model -> DONE (run 4, epoha 34/46)
+	number_special_card_model -> DONE (run 1, epoha 17)
+
+	kernel size na 5?
+	maxpool maknuti ponekad?
