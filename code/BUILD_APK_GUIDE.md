@@ -10,6 +10,12 @@ sudo apt-get install -y \
     git \
     default-jdk \
     default-jre \
+    autoconf \
+    automake \
+    libtool \
+    pkg-config \
+    cmake \
+    ninja-build \
     ant \
     python3 \
     python3-dev \
@@ -49,8 +55,12 @@ export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
 ### 3. Install Buildozer and Python-for-Android
 
 ```bash
-pip install buildozer
-pip install python-for-android
+# Recommended: dedicated build virtualenv (Python 3.10 or 3.11)
+python3.10 -m venv ~/.venvs/buildozer
+source ~/.venvs/buildozer/bin/activate
+
+pip install --upgrade pip wheel "setuptools<82"
+pip install "Cython<3" buildozer python-for-android
 ```
 
 ## Building the APK
@@ -143,6 +153,7 @@ tail -f .buildozer/android/platform/build-[variant]/logs/python.log
 Kill and retry if stuck:
 ```bash
 buildozer android debug --no-strip
+```
 
 ### Issue 5: Buildozer shows only generic failure line
 If you only see `Buildozer failed to execute the last command`, extract the first real compiler error from build logs:
@@ -153,7 +164,71 @@ grep -RInE "error:|fatal error|Traceback|Command failed" .buildozer/android/plat
 ```
 
 For this project, start with arm64 only (already set in [mobile_app/buildozer.spec](mobile_app/buildozer.spec#L307)).
+
+If grep output points to many source files (configure, m4, changelog) but no real runtime error line, inspect log files only:
+
+```bash
+cd /home/petar/Documents/diplomski/KingdomsApp/code/mobile_app
+find .buildozer -type f \( -name "*.log" -o -name "config.log" \) -print0 \
+    | xargs -0 grep -nE "error:|fatal error|Traceback|No such file|cannot create executables|Command failed" \
+    | head -n 120
 ```
+
+### Issue 6: Kivy/SDL2_ttf bootstrap failure
+If the build fails in an SDL2_ttf or kivy bootstrap path, install host autotools and rebuild from clean state:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y autoconf automake libtool pkg-config cmake ninja-build
+
+source /home/petar/Documents/diplomski/KingdomsApp/code/.venv/bin/activate
+cd /home/petar/Documents/diplomski/KingdomsApp/code/mobile_app
+buildozer android clean
+rm -rf .buildozer/android/platform/build-*
+buildozer -v android debug
+```
+
+### Issue 7: libffi/python3 configure errors in config.log
+The lines you shared (missing `ac_nonexistent.h`, many probe compile errors, etc.) are mostly normal autoconf checks. The real blocker is usually environment/toolchain contamination.
+
+Run buildozer from a clean shell and clear custom compiler vars before build:
+
+```bash
+source ~/.venvs/buildozer/bin/activate
+cd /home/petar/Documents/diplomski/KingdomsApp/code/mobile_app
+
+unset CC CXX CPP CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LDSHARED AR RANLIB STRIP PKG_CONFIG_PATH
+
+buildozer android clean
+rm -rf .buildozer/android/platform/build-*
+buildozer -v android debug 2>&1 | tee buildozer_full.log
+```
+
+Then extract the real failing command from the full log:
+
+```bash
+grep -nE "\[ERROR\]|Command failed|Traceback|Exception| failed!" buildozer_full.log | tail -n 120
+```
+
+If this output only shows line numbers (without the real traceback body), print context around those lines:
+
+```bash
+cd /home/petar/Documents/diplomski/KingdomsApp/code/mobile_app
+for n in 21408 21555 21961 22990 23641 23645; do
+    start=$((n-30)); [ $start -lt 1 ] && start=1
+    end=$((n+80))
+    echo "===== buildozer_full.log:$start-$end ====="
+    sed -n "${start},${end}p" buildozer_full.log
+done
+```
+
+### Issue 8: hostpython3 fails before app recipes
+If hostpython3 fails early, build a baseline APK first and add heavy dependencies later.
+
+Current baseline in [mobile_app/buildozer.spec](mobile_app/buildozer.spec):
+- requirements = python3==3.10.11,kivy,numpy,pyjnius,opencv
+
+After this baseline build succeeds, re-add onnxruntime and rebuild.
 
 ## Output
 
