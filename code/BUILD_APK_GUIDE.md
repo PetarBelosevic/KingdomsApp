@@ -91,6 +91,27 @@ buildozer android release > buildozer_output.log 2>&1 &
 
 ## Troubleshooting Common Issues
 
+### Issue 0: Missing Cython (ModuleNotFoundError: No module named 'Cython')
+This happens when python-for-android tries to compile pyjnius but Cython is not installed in your host virtual environment.
+
+Install build-time Python packages in the same virtual environment where you run buildozer:
+
+    source /home/petar/Documents/diplomski/KingdomsApp/code/.venv/bin/activate
+    pip install --upgrade pip wheel
+    pip install "setuptools<82"
+    pip install "Cython<3"
+
+If you already upgraded setuptools too far, force reinstall a compatible version:
+
+    pip install --force-reinstall "setuptools==81.0.0"
+
+Then clean and rebuild:
+
+    cd /home/petar/Documents/diplomski/KingdomsApp/code/mobile_app
+    buildozer android clean
+    rm -rf .buildozer/android/platform/build-*
+    buildozer -v android debug
+
 ### Issue 1: ONNXRUNTIME Build Failures
 If onnxruntime fails to compile, you have options:
 - **Option A:** Remove onnxruntime from requirements and use pre-compiled wheels
@@ -122,6 +143,16 @@ tail -f .buildozer/android/platform/build-[variant]/logs/python.log
 Kill and retry if stuck:
 ```bash
 buildozer android debug --no-strip
+
+### Issue 5: Buildozer shows only generic failure line
+If you only see `Buildozer failed to execute the last command`, extract the first real compiler error from build logs:
+
+```bash
+cd /home/petar/Documents/diplomski/KingdomsApp/code/mobile_app
+grep -RInE "error:|fatal error|Traceback|Command failed" .buildozer/android/platform/build-arm64-v8a* | head -n 60
+```
+
+For this project, start with arm64 only (already set in [mobile_app/buildozer.spec](mobile_app/buildozer.spec#L307)).
 ```
 
 ## Output
