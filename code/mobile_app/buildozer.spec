@@ -37,9 +37,9 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3==3.10.11,kivy,numpy,pyjnius,opencv
+requirements = python3==3.10.11,kivy==2.2.1,numpy,pyjnius,opencv
 # After baseline debug APK succeeds, try adding onnxruntime back:
-# requirements = python3==3.10.11,kivy,numpy,pyjnius,opencv,onnxruntime
+# requirements = python3==3.10.11,kivy==2.2.1,numpy,pyjnius,opencv,onnxruntime
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -324,7 +324,7 @@ android.allow_backup = True
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-#p4a.branch = master
+p4a.branch = stable
 
 # (str) python-for-android specific commit to use, defaults to HEAD, must be within p4a.branch
 #p4a.commit = HEAD
