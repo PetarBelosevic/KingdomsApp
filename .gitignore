@@ -8,3 +8,7 @@ code/training/experiments/special_card_model/run_*
 .venv
 *__pycache__*
 *.pyc
+code/buildozer
+code/mobile_app/.buildozer
+code/mobile_app/bin
+code/get-pip.py

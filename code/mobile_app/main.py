@@ -12,15 +12,15 @@ from kivy.properties import StringProperty
 from kivy.graphics.texture import Texture
 from kivy.uix.textinput import TextInput, platform
 from kivy.resources import resource_find
-# try:
-#     from android.permissions import request_permissions, Permission
+try:
+    from android.permissions import request_permissions, Permission
     
 #     # Source - https://stackoverflow.com/a/68888334
 #     # Posted by Husam Fathi
 #     # Retrieved 2026-03-29, License - CC BY-SA 4.0
-#     request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA])
-# except ImportError:
-
+    request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.READ_MEDIA_IMAGES, Permission.CAMERA])
+except ImportError:
+    pass
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) # dataset_framework directory
 project_root = os.path.dirname(current_dir) # diplomski directory

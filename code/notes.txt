@@ -8,6 +8,7 @@ IZVORI:
 	https://dzone.com/articles/edge-ai-tensorflow-lite-vs-onnx-runtime-vs-pytorch
 	https://www.tug.org/pracjourn/2007-4/walden/color.pdf
 	https://www.youtube.com/watch?v=JZeaRTwk5hI
+	https://towardsdatascience.com/3-ways-to-convert-python-app-into-apk-77f4c9cd55af/
 
 TODO:
 	- editing model doesn't work
@@ -24,6 +25,14 @@ BUILDOZER:
 
 	android.permissions = CAMERA
 	android.api = 21  # Camera2 requires 21+
+
+sudo apt update
+sudo apt install -y \
+    python3-pip \
+    openjdk-17-jdk \
+    unzip \
+    git \
+    zip
 
 APP:
 	<STARTING_SCREEN>:
@@ -184,28 +193,11 @@ detekciaj ploče:
 	veliki blur, strogi tresholdi u Cannyju
 
 
-TODO:
-	još slika <
-	namjestiti konfiguraciju treniranja (batch size, learning rate, augmentacije)
-	pokrenuti treniranje
-	kvalitetniji data split
-
-augmentacija:
-	relative brightnes change
-	dodati još logike
-
 modeli:
 	card_castle_model -> DONE (run 15, epoha 98)
 	castle_color_model -> DONE (run 6, epoha 42)
 	castle_rank_model  -> DONE (run 39, epoha 68) 
-		mozda skoro rijeseno
-		izgleda da više faila na zelenim i žutim dvorcima
-		also često precijeni veličinu dvorca (predicta veći rank nego što je stvarno)
-		rankovi 2 i 3 ga muče
 		najbolji do sad: 15, 22, 24!, 25! (0.9302), 28! (0.9419, 100 epoha), 29! (0.9651 (65. epoha), 70 epoha)
 	number_card_model -> DONE (run 2, epoha 52)
 	special_card_model -> DONE (run 4, epoha 34/46)
 	number_special_card_model -> DONE (run 1, epoha 17)
-
-	kernel size na 5?
-	maxpool maknuti ponekad?

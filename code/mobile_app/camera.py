@@ -1,10 +1,8 @@
 from jnius import autoclass, PythonJavaClass, java_method
 try:
     from android import activity
-    from android.permissions import request_permissions, Permission
-    ANDROID = True
 except ImportError:
-    ANDROID = False
+    pass
 
 # Android classes
 Context = autoclass('android.content.Context')
