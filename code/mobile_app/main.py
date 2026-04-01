@@ -16,7 +16,7 @@ from kivy.uix.textinput import TextInput
 from kivy.utils import platform
 from kivy.resources import resource_find
 try:
-    from android.permissions import request_permissions, Permission
+    from android.permissions import request_permissions, Permission  # type: ignore[import-not-found]
     
 #     # Source - https://stackoverflow.com/a/68888334
 #     # Posted by Husam Fathi
@@ -185,7 +185,8 @@ class KingdomsApp(App):
     def build(self):
         self.android = platform == "android"
 
-        root = Builder.load_file("kingdoms_game.kv")
+        kv_path = resource_find("kingdoms_game.kv") or os.path.join(self.app_dir, "kingdoms_game.kv")
+        root = Builder.load_file(kv_path)
         root.transition = SlideTransition(direction="left")
         self.determine_initial_screen(root)
         return root

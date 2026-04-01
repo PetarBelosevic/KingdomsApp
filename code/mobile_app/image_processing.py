@@ -1,7 +1,5 @@
 import sys
-
 import cv2
-import onnxruntime as ort
 import numpy as np
 import os
 
@@ -123,6 +121,11 @@ class ModelService:
 
 
     def _load_models(self, model_dir):
+        try:
+            import onnxruntime as ort
+        except Exception as exc:
+            raise RuntimeError(f"onnxruntime is not available: {exc}") from exc
+
         if not os.path.isdir(model_dir):
             raise FileNotFoundError(f"Model directory not found: {model_dir}")
 
