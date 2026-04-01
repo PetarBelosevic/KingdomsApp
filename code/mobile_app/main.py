@@ -2,7 +2,7 @@ import sys
 import cv2
 import os
 
-from kivy.uix.screenmanager import Builder, Screen, ScreenManager, SlideTransition
+from kivy.lang import Builder
 from kivy.app import App
 # from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.anchorlayout import AnchorLayout
@@ -11,7 +11,9 @@ from kivy.uix.label import Label
 from kivy.storage.jsonstore import JsonStore
 from kivy.properties import StringProperty
 from kivy.graphics.texture import Texture
-from kivy.uix.textinput import TextInput, platform
+from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
+from kivy.uix.textinput import TextInput
+from kivy.utils import platform
 from kivy.resources import resource_find
 try:
     from android.permissions import request_permissions, Permission
@@ -28,9 +30,7 @@ project_root = os.path.dirname(current_dir) # diplomski directory
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from image_processing import rectify_image, BoardModel
 from game_logic import calculate_player_points
-from camera import Camera2Capture
 
 
 class RootScreenManager(ScreenManager):
@@ -158,11 +158,12 @@ class KingdomsApp(App):
         self.board_model = None
         self.board_model_processing_unit = None
         self.model_init_error = None
-        self._init_board_model_service()
 
 
     def _init_board_model_service(self):
         try:
+            from image_processing import BoardModel
+
             models_dir = os.path.join(self.app_dir, "onnx_models")
             self.board_model_processing_unit = BoardModel(path_to_models=models_dir)
             self.model_init_error = None
@@ -242,6 +243,8 @@ class KingdomsApp(App):
     def take_new_photo(self): # TODO
         # open camera and take photo, then save to temp file and set selected_image_path
         # print("Open camera and take photo")
+        from camera import Camera2Capture
+
         camera = Camera2Capture()
         camera.capture(self.detect_board)
 
@@ -286,6 +289,8 @@ class KingdomsApp(App):
     # data processing methods
 
     def detect_board(self):
+        from image_processing import rectify_image
+
         self.image = rectify_image(self.image)
         self._go_to_default("detected_board", "left")
         self.show_image(self.image)
