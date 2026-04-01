@@ -7,6 +7,7 @@ from kivy.app import App
 # from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 from kivy.storage.jsonstore import JsonStore
 from kivy.properties import StringProperty
 from kivy.graphics.texture import Texture
@@ -151,10 +152,33 @@ class KingdomsApp(App):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.game_data = JsonStore("mobile_app/game_data.json")
+        self.app_dir = os.path.dirname(os.path.abspath(__file__))
+        self.game_data = JsonStore(os.path.join(self.app_dir, "game_data.json"))
         self.image = None
         self.board_model = None
-        self.board_model_processing_unit = BoardModel()
+        self.board_model_processing_unit = None
+        self.model_init_error = None
+        self._init_board_model_service()
+
+
+    def _init_board_model_service(self):
+        try:
+            models_dir = os.path.join(self.app_dir, "onnx_models")
+            self.board_model_processing_unit = BoardModel(path_to_models=models_dir)
+            self.model_init_error = None
+        except Exception as exc:
+            self.board_model_processing_unit = None
+            self.model_init_error = str(exc)
+            print(f"Board model initialization failed: {exc}")
+
+
+    def _show_error_popup(self, title, text):
+        popup = Popup(
+            title=title,
+            content=Label(text=text),
+            size_hint=(0.85, 0.4)
+        )
+        popup.open()
 
 
     def build(self):
@@ -268,6 +292,15 @@ class KingdomsApp(App):
 
     
     def generate_board_model(self):
+        if self.board_model_processing_unit is None:
+            self._init_board_model_service()
+            if self.board_model_processing_unit is None:
+                self._show_error_popup(
+                    "Model Loading Error",
+                    f"Could not load ONNX models.\n\n{self.model_init_error or 'Unknown error'}"
+                )
+                return
+
         self.board_model = self.board_model_processing_unit.generate_board_model(self.image)
         self.go_to("board_model", "left", self._initialize_symbol_grid)
 

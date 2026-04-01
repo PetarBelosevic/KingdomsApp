@@ -30,7 +30,10 @@ def rectify_image(img):
 
 
 class BoardModel:
-    def __init__(self, path_to_models="mobile_app/onnx_models"):
+    def __init__(self, path_to_models=None):
+        if path_to_models is None:
+            app_dir = os.path.dirname(os.path.abspath(__file__))
+            path_to_models = os.path.join(app_dir, "onnx_models")
         self.models = ModelService(path_to_models)
 
 
@@ -120,6 +123,9 @@ class ModelService:
 
 
     def _load_models(self, model_dir):
+        if not os.path.isdir(model_dir):
+            raise FileNotFoundError(f"Model directory not found: {model_dir}")
+
         for file in os.listdir(model_dir):
             if file.endswith(".onnx"):
                 model_path = os.path.join(model_dir, file)
