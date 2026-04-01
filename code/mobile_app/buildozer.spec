@@ -37,9 +37,9 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3==3.10.11,kivy==2.2.1,numpy,pyjnius,opencv
+# requirements = python3==3.10.11,kivy==2.2.1,numpy,pyjnius,opencv
 # After baseline debug APK succeeds, try adding onnxruntime back:
-# requirements = python3==3.10.11,kivy==2.2.1,numpy,pyjnius,opencv,onnxruntime
+requirements = python3==3.10.11,kivy==2.2.1,numpy,pyjnius,opencv,onnxruntime
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
