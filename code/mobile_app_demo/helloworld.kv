@@ -1,0 +1,22 @@
+#:kivy 2.0
+
+<BoxLayout>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+
+    Label:
+        text: 'Hello World!'
+        font_size: '48sp'
+        size_hint_y: 0.5
+
+    Button:
+        text: 'Click Me'
+        size_hint_y: 0.3
+        on_press: app.root.ids.label.text = 'Button Pressed!'
+
+    Label:
+        id: label
+        text: ''
+        font_size: '24sp'
+        size_hint_y: 0.2
