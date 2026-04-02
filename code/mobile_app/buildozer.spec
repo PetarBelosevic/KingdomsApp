@@ -40,7 +40,7 @@ version = 0.1
 # requirements = python3==3.10.11,kivy==2.3.0,numpy,pyjnius,opencv
 # After baseline debug APK succeeds, try adding onnxruntime back:
 # requirements = python3==3.10.11,kivy==2.3.0,numpy,pyjnius,opencv,onnxruntime
-requirements = python3==3.10.11,kivy==2.3.0,pyjnius
+requirements = python3,kivy
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -77,9 +77,7 @@ osx.kivy_version = 1.9.1
 #
 
 # (bool) Indicate if the application should be fullscreen or not
-# Android 14 devices have shown startup instability in non-fullscreen mode
-# with SDL/Kivy surfaces during bootstrap.
-fullscreen = 1
+fullscreen = 0
 
 # (string) Presplash background color (for android toolchain)
 # Supported formats are: #RRGGBB #AARRGGBB or one of the following names:
@@ -101,16 +99,12 @@ fullscreen = 1
 # (list) Permissions
 # (See https://python-for-android.readthedocs.io/en/latest/buildoptions/#build-options-1 for all the supported syntaxes and properties)
 #android.permissions = android.permission.INTERNET, (name=android.permission.WRITE_EXTERNAL_STORAGE;maxSdkVersion=18)
-android.permissions = CAMERA,READ_EXTERNAL_STORAGE,READ_MEDIA_IMAGES
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-# Note: Android 14 (API 34) has stricter mutex handling that may be
-# incompatible with some p4a builds. Lowering to 33 often resolves
-# FORTIFY mutex crashes in hwuiTask1 bootstrap thread.
-android.api = 33
+#android.api = 31
 
 # (int) Minimum API your APK / AAB will support.
 #android.minapi = 21
@@ -330,8 +324,7 @@ android.debug_artifact = apk
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-# Buildozer expects a p4a version with AAB support, which is available on master.
-p4a.branch = master
+#p4a.branch = master
 
 # (str) python-for-android specific commit to use, defaults to HEAD, must be within p4a.branch
 #p4a.commit = HEAD
