@@ -17,13 +17,9 @@ from kivy.utils import platform
 from kivy.resources import resource_find
 try:
     from android.permissions import request_permissions, Permission  # type: ignore[import-not-found]
-    
-#     # Source - https://stackoverflow.com/a/68888334
-#     # Posted by Husam Fathi
-#     # Retrieved 2026-03-29, License - CC BY-SA 4.0
-    request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.READ_MEDIA_IMAGES, Permission.CAMERA])
 except ImportError:
-    pass
+    request_permissions = None
+    Permission = None
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) # dataset_framework directory
 project_root = os.path.dirname(current_dir) # diplomski directory
@@ -180,6 +176,16 @@ class KingdomsApp(App):
             size_hint=(0.85, 0.4)
         )
         popup.open()
+
+
+    def on_start(self):
+        if request_permissions is not None and Permission is not None:
+            request_permissions([
+                Permission.READ_EXTERNAL_STORAGE,
+                Permission.READ_MEDIA_IMAGES,
+                Permission.CAMERA,
+            ])
+        super().on_start()
 
 
     def build(self):
