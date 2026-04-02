@@ -1,5 +1,4 @@
 import sys
-import cv2
 import os
 
 from kivy.lang import Builder
@@ -151,9 +150,26 @@ class KingdomsApp(App):
         self.app_dir = os.path.dirname(os.path.abspath(__file__))
         self.game_data = JsonStore(os.path.join(self.app_dir, "game_data.json"))
         self.image = None
+        self._cv2 = None
         self.board_model = None
         self.board_model_processing_unit = None
         self.model_init_error = None
+
+
+    def _get_cv2(self):
+        if self._cv2 is not None:
+            return self._cv2
+
+        try:
+            import cv2  # Local import on purpose: avoid hard crash during app startup.
+            self._cv2 = cv2
+            return self._cv2
+        except Exception as exc:
+            self._show_error_popup(
+                "OpenCV Error",
+                f"OpenCV is not available on this build.\n\n{exc}"
+            )
+            return None
 
 
     def _init_board_model_service(self):
@@ -261,6 +277,10 @@ class KingdomsApp(App):
 
 
     def use_selected_from_gallery(self):
+        cv2 = self._get_cv2()
+        if cv2 is None:
+            return
+
         if not self._pending_gallery_selection:
             self.processing_status = "No image selected yet."
             return
@@ -274,6 +294,10 @@ class KingdomsApp(App):
     # image display
 
     def show_image(self, image):
+        cv2 = self._get_cv2()
+        if cv2 is None:
+            return
+
         frame = image  # your cv2 image (numpy array)
         # 1. Convert BGR → RGB
         buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
