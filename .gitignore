@@ -11,3 +11,5 @@ code/training/experiments/special_card_model/run_*
 code/buildozer
 code/mobile_app/.buildozer
 code/get-pip.py
+code/mobile_app_demo/.buildozer/
+code/mobile_app_demo/bin/
