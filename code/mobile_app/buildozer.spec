@@ -107,7 +107,10 @@ android.permissions = CAMERA,READ_EXTERNAL_STORAGE,READ_MEDIA_IMAGES
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-android.api = 34
+# Note: Android 14 (API 34) has stricter mutex handling that may be
+# incompatible with some p4a builds. Lowering to 33 often resolves
+# FORTIFY mutex crashes in hwuiTask1 bootstrap thread.
+android.api = 33
 
 # (int) Minimum API your APK / AAB will support.
 #android.minapi = 21
