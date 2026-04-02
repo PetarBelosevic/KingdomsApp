@@ -330,8 +330,8 @@ android.debug_artifact = apk
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-# Use a stable p4a release branch instead of bleeding-edge master.
-p4a.branch = release-2024.01.21
+# Use the conservative stable branch to reduce bootstrap regressions.
+p4a.branch = stable
 
 # (str) python-for-android specific commit to use, defaults to HEAD, must be within p4a.branch
 #p4a.commit = HEAD
