@@ -330,8 +330,8 @@ android.debug_artifact = apk
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-# Use the conservative stable branch to reduce bootstrap regressions.
-p4a.branch = stable
+# Buildozer expects a p4a version with AAB support, which is available on master.
+p4a.branch = master
 
 # (str) python-for-android specific commit to use, defaults to HEAD, must be within p4a.branch
 #p4a.commit = HEAD
