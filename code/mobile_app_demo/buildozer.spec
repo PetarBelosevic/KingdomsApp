@@ -203,7 +203,7 @@ android.extra_manifest_application_arguments = ./src/android/extra_manifest_appl
 #android.add_resources =
 
 # (list) Gradle dependencies to add
-#android.gradle_dependencies =
+android.gradle_dependencies = "androidx.core:core:1.12.0"
 
 # (bool) Enable AndroidX support. Enable when 'android.gradle_dependencies'
 # contains an 'androidx' package, or any package from Kotlin source.
