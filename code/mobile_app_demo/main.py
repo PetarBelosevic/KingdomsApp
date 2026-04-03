@@ -1,6 +1,10 @@
 import os
 # import numpy as np
 # import cv2
+from PIL import Image
+import os
+from functools import partial
+
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -12,6 +16,16 @@ from kivy.graphics.texture import Texture
 from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.popup import Popup
+
+if platform == "android":
+    from jnius import autoclass, cast
+    from android import activity, mActivity
+
+    Intent = autoclass('android.content.Intent')
+    MediaStore = autoclass('android.provider.MediaStore')
+    Uri = autoclass('android.net.Uri')
+    Environment = autoclass('android.os.Environment')
+
 
 # from camera import Camera2Capture
 
@@ -84,6 +98,10 @@ class KingdomsApp(App):
             extra_work()
 
 
+    def go_to_demo(self, dt):
+        self._go_to_default("demo", "left")
+
+
     def clear_metadata(self):
         self.image = None
         self.board_model = None
@@ -92,6 +110,9 @@ class KingdomsApp(App):
     def clear_game(self):
         self.game_data.clear()
         self.clear_metadata()
+
+    def get_filename(self):
+        return (Environment.getExternalStorageDirectory().getPath() + '/takepicture.jpg')
 
     # --------------------------------------------------
     # Start screen methods
@@ -113,6 +134,46 @@ class KingdomsApp(App):
 
     # --------------------------------------------------
     # image retrieval methods # TODO 
+
+    def take_picture(self):
+        # self.last_filename = self.get_filename()
+
+        # intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        # uri = Uri.fromFile(self.last_filename)
+        # intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+
+        # activity.startActivityForResult(intent, 0)
+        intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        self.url = self.get_filename()
+        self.url = Uri.parse('file://' + self.url)
+        self.url = cast('android.os.Parcelable', self.url)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, self.url)
+        mActivity.startActivityForResult(intent, 0x123)
+
+
+    def on_activity_result(self, requestCode, resultCode, intent):
+        if requestCode == 0x123:
+            try:
+                filename = self.last_filename
+
+                # 📥 učitaj sliku u memoriju
+                img = Image.open(filename)
+                img.load()
+
+                # 💾 spremi kao atribut
+                self.image = img
+
+                # (opcionalno) odmah obradi
+                # self.process_image(img)  # ako imaš ovu funkciju
+
+                # 🧹 obriši datoteku
+                os.remove(filename)
+
+            except Exception as e:
+                print("Greška pri obradi slike:", e)
+
+            Clock.schedule_once(self.go_to_demo, 0)
+
 
     def take_new_photo(self): # TODO
         # open camera and take photo, then save to temp file and set selected_image_path
