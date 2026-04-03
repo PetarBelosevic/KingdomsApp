@@ -9,6 +9,7 @@ IZVORI:
 	https://www.tug.org/pracjourn/2007-4/walden/color.pdf
 	https://www.youtube.com/watch?v=JZeaRTwk5hI
 	https://towardsdatascience.com/3-ways-to-convert-python-app-into-apk-77f4c9cd55af/
+	https://stackoverflow.com/questions/61728185/python-kivy-how-to-disable-enable-a-button
 
 TODO:
 	- editing model doesn't work

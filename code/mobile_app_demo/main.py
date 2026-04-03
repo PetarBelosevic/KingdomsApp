@@ -64,6 +64,10 @@ class KingdomsApp(App):
             self.prepare_results()
         else:
             root.current = "start"
+
+
+    def on_pause(self):
+        return True
     
     # --------------------------------------------------
     # Generic methods
@@ -181,7 +185,7 @@ class KingdomsApp(App):
         # Camera callback can arrive off the main thread; schedule UI work safely.
         Clock.schedule_once(lambda dt: self._go_to_default("demo", "left"), 0)
         # !
-        
+
         # convert bytes to cv2 image
         # nparr = np.frombuffer(data, np.uint8)
         # self.image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
