@@ -1,9 +1,7 @@
 import os
 # import numpy as np
 # import cv2
-from PIL import Image
-import os
-from functools import partial
+import time
 
 
 from kivy.app import App
@@ -21,10 +19,12 @@ if platform == "android":
     from jnius import autoclass, cast
     from android import activity, mActivity
 
+    Activity = autoclass('android.app.Activity')
     Intent = autoclass('android.content.Intent')
     MediaStore = autoclass('android.provider.MediaStore')
-    Uri = autoclass('android.net.Uri')
     Environment = autoclass('android.os.Environment')
+    File = autoclass('java.io.File')
+    FileProvider = autoclass('androidx.core.content.FileProvider')
 
 
 # from camera import Camera2Capture
@@ -48,6 +48,7 @@ class GameInfoPopup(AnchorLayout):
 # --------------------------------------------------
 
 class KingdomsApp(App):
+    REQUEST_IMAGE_CAPTURE = 0x123
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -63,6 +64,7 @@ class KingdomsApp(App):
 
             from android.permissions import request_permissions, Permission
             request_permissions([Permission.CAMERA])
+            activity.bind(on_activity_result=self.on_activity_result)
 
 
         kv_path = resource_find("helloworld.kv") or os.path.join(self.app_dir, "helloworld.kv") # TODO change
@@ -112,7 +114,17 @@ class KingdomsApp(App):
         self.clear_metadata()
 
     def get_filename(self):
-        return (Environment.getExternalStorageDirectory().getPath() + '/takepicture.jpg')
+        ts = int(time.time() * 1000)
+        return f"takepicture_{ts}.jpg"
+
+    def _create_camera_output(self):
+        pictures_dir = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        filename = self.get_filename()
+        photo_file = File(pictures_dir, filename)
+        self.last_filename = photo_file.getAbsolutePath()
+        authority = f"{mActivity.getPackageName()}.fileprovider"
+        photo_uri = FileProvider.getUriForFile(mActivity, authority, photo_file)
+        return photo_uri
 
     # --------------------------------------------------
     # Start screen methods
@@ -136,63 +148,61 @@ class KingdomsApp(App):
     # image retrieval methods # TODO 
 
     def take_picture(self):
-        # self.last_filename = self.get_filename()
-
-        # intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        # uri = Uri.fromFile(self.last_filename)
-        # intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-
-        # activity.startActivityForResult(intent, 0)
-        intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        self.url = self.get_filename()
-        self.url = Uri.parse('file://' + self.url)
-        self.url = cast('android.os.Parcelable', self.url)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, self.url)
-        mActivity.startActivityForResult(intent, 0x123)
-
-
-    def on_activity_result(self, requestCode, resultCode, intent):
-        if requestCode == 0x123:
-            try:
-                filename = self.last_filename
-
-                # 📥 učitaj sliku u memoriju
-                img = Image.open(filename)
-                img.load()
-
-                # 💾 spremi kao atribut
-                self.image = img
-
-                # (opcionalno) odmah obradi
-                # self.process_image(img)  # ako imaš ovu funkciju
-
-                # 🧹 obriši datoteku
-                os.remove(filename)
-
-            except Exception as e:
-                print("Greška pri obradi slike:", e)
-
-            Clock.schedule_once(self.go_to_demo, 0)
-
-
-    def take_new_photo(self): # TODO
-        # open camera and take photo, then save to temp file and set selected_image_path
-        # print("Open camera and take photo")
         if not self.android:
-            print("Camera capture is only available on Android.")
             return
 
-        # !
         from android.permissions import check_permission, Permission, request_permissions
         if not check_permission(Permission.CAMERA):
             request_permissions([Permission.CAMERA])
-            # print("Camera permission requested. Tap again after granting permission.")
             return
-        # !
 
-        self.camera_capture = self.camera_class()
-        self.camera_capture.capture(self.save_image)
-        # self.detect_board()
+        intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        photo_uri = self._create_camera_output()
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, cast('android.os.Parcelable', photo_uri))
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        mActivity.startActivityForResult(intent, self.REQUEST_IMAGE_CAPTURE)
+
+
+    def on_activity_result(self, requestCode, resultCode, intent):
+        if requestCode != self.REQUEST_IMAGE_CAPTURE:
+            return
+
+        if resultCode != Activity.RESULT_OK:
+            print("Camera capture cancelled or failed.")
+            return
+
+        try:
+            if not hasattr(self, "last_filename") or not os.path.exists(self.last_filename):
+                print("Camera did not produce an output file.")
+                return
+
+            with open(self.last_filename, "rb") as f:
+                jpeg_data = f.read()
+
+            self.save_image(jpeg_data)
+        except Exception as e:
+            print("Error while handling camera result:", e)
+
+
+    # def take_new_photo(self): # TODO
+    #     # open camera and take photo, then save to temp file and set selected_image_path
+    #     # print("Open camera and take photo")
+    #     if not self.android:
+    #         print("Camera capture is only available on Android.")
+    #         return
+
+    #     # !
+    #     from android.permissions import check_permission, Permission, request_permissions
+    #     if not check_permission(Permission.CAMERA):
+    #         request_permissions([Permission.CAMERA])
+    #         # print("Camera permission requested. Tap again after granting permission.")
+    #         return
+    #     # !
+
+    #     self.camera_capture = self.camera_class()
+    #     self.camera_capture.capture(self.save_image)
+    #     # self.detect_board()
 
 
     # def on_gallery_selection(self, selection):
@@ -242,7 +252,16 @@ class KingdomsApp(App):
     # --------------------------------------------------
     # data processing methods
     def save_image(self, data):
-        # !
+        # Keep captured image in app state for downstream processing.
+        self.image = data
+
+        # When using full-resolution intent capture, remove temp file after loading bytes.
+        if hasattr(self, "last_filename") and self.last_filename and os.path.exists(self.last_filename):
+            try:
+                os.remove(self.last_filename)
+            except Exception as e:
+                print("Failed to remove temporary camera file:", e)
+
         # Camera callback can arrive off the main thread; schedule UI work safely.
         Clock.schedule_once(lambda dt: self._go_to_default("demo", "left"), 0)
         # !

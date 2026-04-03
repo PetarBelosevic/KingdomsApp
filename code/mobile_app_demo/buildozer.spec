@@ -153,7 +153,7 @@ android.permissions = android.permission.CAMERA
 
 # (str) Extra xml to write directly inside the <manifest><application> tag of AndroidManifest.xml
 # use that parameter to provide a filename from where to load your custom XML arguments:
-#android.extra_manifest_application_arguments = ./src/android/extra_manifest_application_arguments.xml
+android.extra_manifest_application_arguments = ./src/android/extra_manifest_application_arguments.xml
 
 # (str) Full name including package path of the Java class that implements Python Service
 # use that parameter to set custom Java class which extends PythonService
@@ -208,7 +208,7 @@ android.permissions = android.permission.CAMERA
 # (bool) Enable AndroidX support. Enable when 'android.gradle_dependencies'
 # contains an 'androidx' package, or any package from Kotlin source.
 # android.enable_androidx requires android.api >= 28
-#android.enable_androidx = True
+android.enable_androidx = True
 
 # (list) add java compile options
 # this can for example be necessary when importing certain java libraries using the 'android.gradle_dependencies' option
@@ -241,7 +241,7 @@ android.permissions = android.permission.CAMERA
 #android.manifest.intent_filters =
 
 # (list) Copy these files to src/main/res/xml/ (used for example with intent-filters)
-#android.res_xml = PATH_TO_FILE,
+android.res_xml = ./src/android/file_paths.xml
 
 # (str) launchMode to set for the main activity
 #android.manifest.launch_mode = standard
