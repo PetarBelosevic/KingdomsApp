@@ -24,22 +24,23 @@ class _ImageListener(PythonJavaClass):
         super().__init__()
         self.outer = outer
 
-    @java_method('()V')
+    @java_method('(Landroid/media/ImageReader;)V')
     def onImageAvailable(self, reader):
         image = reader.acquireLatestImage()
         if not image:
             return
 
-        plane = image.getPlanes()[0]
-        buffer = plane.getBuffer()
+        try:
+            plane = image.getPlanes()[0]
+            buffer = plane.getBuffer()
 
-        data = bytearray(buffer.remaining())
-        buffer.get(data)
+            data = bytearray(buffer.remaining())
+            buffer.get(data)
 
-        image.close()
-
-        # Send result back to Python
-        self.outer._on_image(data)
+            # Send result back to Python
+            self.outer._on_image(data)
+        finally:
+            image.close()
 
 
 # -------------------------
@@ -93,7 +94,7 @@ class _SessionCallback(PythonJavaClass):
 # -------------------------
 class Camera2Capture:
 
-    def __init__(self, width=1920*4, height=1080*4):
+    def __init__(self, width=1920, height=1080):
         self.context = activity.getApplicationContext()
         self.manager = self.context.getSystemService(Context.CAMERA_SERVICE)
 

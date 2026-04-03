@@ -115,8 +115,8 @@ class KingdomsApp(App):
         if not self.android:
             print("Camera capture is only available on Android.")
             return
-        camera = self.camera_class()
-        camera.capture(self.save_image)
+        self.camera_capture = self.camera_class()
+        self.camera_capture.capture(self.save_image)
         # self.detect_board()
 
 
