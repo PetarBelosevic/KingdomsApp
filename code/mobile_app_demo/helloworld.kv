@@ -1,22 +1,104 @@
 #:kivy 2.0
 
-<BoxLayout>:
-    orientation: 'vertical'
-    padding: 10
-    spacing: 10
+<BaseBoxLayout@BoxLayout>:
+    orientation: "vertical"
+    spacing: dp(16)
+    padding: dp(16)
 
-    Label:
-        text: 'Hello World!'
-        font_size: '48sp'
-        size_hint_y: 0.5
 
-    Button:
-        text: 'Click Me'
-        size_hint_y: 0.3
-        on_press: app.root.ids.label.text = 'Button Pressed!'
+<HorizontalGrid@GridLayout>:
+    rows: 1
+    spacing: dp(16)
+    padding: dp(16)
+    size_hint_y: None
 
-    Label:
-        id: label
-        text: ''
-        font_size: '24sp'
-        size_hint_y: 0.2
+
+<BaseButton@Button>:
+    font_size: "24sp"
+    size_hint_y: None
+    height: dp(48)
+    
+
+<BaseLabel@Label>:
+    font_size: "24sp"
+    size_hint_y: None
+    height: self.texture_size[1] + dp(20)
+    text_size: self.width, None
+    halign: "center"
+    valign: "middle"
+
+
+<BaseTextInput>:
+    multiline: False
+    halign: "center"
+    valign: "center"
+    font_size: "28sp"
+    background_color: (0.65, 0.65, 0.65, 1)
+
+# --------------------------------------------------
+
+RootScreenManager:
+    id: screen_manager
+    
+    StartScreen:
+        name: "start"
+    ImageMethodScreen:
+        name: "image_method"
+    # GalleryScreen:
+    #     name: "gallery"
+    # DetectedBoardScreen:
+    #     name: "detected_board"
+    # BoardModelScreen:
+    #     name: "board_model"
+    # RoundResultsScreen:
+    #     name: "round_results"
+
+# --------------------------------------------------
+
+<GameInfoPopup>:
+    spacing: dp(16)
+    padding: dp(16)
+    BaseLabel:
+        text: "Kingdoms is a tile-laying game designed by Reiner Knizia. Players take turns placing tiles on a shared board, aiming to create and control kingdoms. Each tile has different terrain types, and players score points based on the size and composition of their kingdoms. The game combines strategic placement with tactical decision-making, making it a favorite among board game enthusiasts."
+
+
+<WinnerPopup>:
+    spacing: dp(16)
+    padding: dp(16)
+    BaseLabel:
+        id: winner_label
+        text: app.winner
+
+# --------------------------------------------------
+
+<StartScreen>:
+    BaseBoxLayout:
+        BaseLabel:
+            text: "Welcome to Kingdoms by Reiner Knizia!"
+        BaseButton:
+            text: "Game Info"
+            on_release: app.show_game_info()
+        BaseButton:
+            text: "New Game"
+            on_release: app.start_new_game()
+        BaseButton:
+            text: "Analyze One Image"
+            on_release: app.go_to("image_method", "left", app.clear_game)
+
+# --------------------------------------------------
+
+# TODO
+<ImageMethodScreen>:
+    BaseBoxLayout:
+        BaseLabel:
+            text: "Choose how to provide an image"
+        BaseButton:
+            disabled: not app.android
+            text: "Take New Photo"
+            on_release: app.take_new_photo() # TODO
+        BaseButton:
+            text: "Load Existing Photo"
+            # on_release: app.go_to("gallery", "left")
+        BaseButton:
+            text: "Back"
+            on_release: app.go_to("start", "right")
