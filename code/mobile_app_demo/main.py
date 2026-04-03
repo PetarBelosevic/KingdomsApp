@@ -1,6 +1,6 @@
 import os
-import numpy as np
-import cv2
+# import numpy as np
+# import cv2
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -8,12 +8,11 @@ from kivy.utils import platform
 from kivy.resources import resource_find
 from kivy.storage.jsonstore import JsonStore
 from kivy.graphics.texture import Texture
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.popup import Popup
 
-from camera import Camera2Capture
+# from camera import Camera2Capture
 
 # --------------------------------------------------
 
@@ -43,6 +42,9 @@ class KingdomsApp(App):
 
     def build(self):
         self.android = platform == "android"
+        if self.android:
+            from camera import Camera2Capture
+            self.camera_class = Camera2Capture
 
         kv_path = resource_find("helloworld.kv") or os.path.join(self.app_dir, "helloworld.kv") # TODO change
         root = Builder.load_file(kv_path)
@@ -106,9 +108,12 @@ class KingdomsApp(App):
     def take_new_photo(self): # TODO
         # open camera and take photo, then save to temp file and set selected_image_path
         # print("Open camera and take photo")
-        camera = Camera2Capture()
+        if not self.android:
+            print("Camera capture is only available on Android.")
+            return
+        camera = self.camera_class()
         camera.capture(self.save_image)
-        self.detect_board()
+        # self.detect_board()
 
 
     # def on_gallery_selection(self, selection):
@@ -132,43 +137,45 @@ class KingdomsApp(App):
     # --------------------------------------------------
     # image display
 
-    def show_image(self, image):
-        # cv2 = self._get_cv2()
-        # if cv2 is None:
-        #     return
+    # def show_image(self, image):
+    #     # cv2 = self._get_cv2()
+    #     # if cv2 is None:
+    #     #     return
 
-        frame = image  # your cv2 image (numpy array)
-        # 1. Convert BGR → RGB
-        buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        # 2. Flip vertically
-        buf = cv2.flip(buf, 0)
-        # 3. Convert to bytes
-        buf = buf.tobytes()
-        # 4. Create texture
-        texture = Texture.create(
-            size=(frame.shape[1], frame.shape[0]),
-            colorfmt='rgb'
-        )
-        # 5. Blit buffer
-        texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
-        # 6. Display in Image widget
-        screen = self.root.get_screen("detected_board")
-        screen.ids.board.texture = texture
+    #     frame = image  # your cv2 image (numpy array)
+    #     # 1. Convert BGR → RGB
+    #     buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #     # 2. Flip vertically
+    #     buf = cv2.flip(buf, 0)
+    #     # 3. Convert to bytes
+    #     buf = buf.tobytes()
+    #     # 4. Create texture
+    #     texture = Texture.create(
+    #         size=(frame.shape[1], frame.shape[0]),
+    #         colorfmt='rgb'
+    #     )
+    #     # 5. Blit buffer
+    #     texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
+    #     # 6. Display in Image widget
+    #     screen = self.root.get_screen("detected_board")
+    #     screen.ids.board.texture = texture
 
     # --------------------------------------------------
     # data processing methods
     def save_image(self, data):
+        self._go_to_default("demo", "left")
+
         # convert bytes to cv2 image
-        nparr = np.frombuffer(data, np.uint8)
-        self.image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        # nparr = np.frombuffer(data, np.uint8)
+        # self.image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
 
-    def detect_board(self):
-        # from image_processing import rectify_image
+    # def detect_board(self):
+    #     # from image_processing import rectify_image
 
-        # self.image = rectify_image(self.image)
-        self._go_to_default("detected_board", "left")
-        self.show_image(self.image)
+    #     # self.image = rectify_image(self.image)
+    #     self._go_to_default("detected_board", "left")
+    #     self.show_image(self.image)
 
     # --------------------------------------------------
 
