@@ -33,7 +33,7 @@ class _ImageListener(PythonJavaClass):
         plane = image.getPlanes()[0]
         buffer = plane.getBuffer()
 
-        data = bytes(buffer.remaining())
+        data = bytearray(buffer.remaining())
         buffer.get(data)
 
         image.close()

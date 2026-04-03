@@ -46,6 +46,10 @@ class KingdomsApp(App):
             from camera import Camera2Capture
             self.camera_class = Camera2Capture
 
+            from android.permissions import request_permissions, Permission
+            request_permissions([Permission.CAMERA])
+
+
         kv_path = resource_find("helloworld.kv") or os.path.join(self.app_dir, "helloworld.kv") # TODO change
         root = Builder.load_file(kv_path)
         root.transition = SlideTransition(direction="left")
