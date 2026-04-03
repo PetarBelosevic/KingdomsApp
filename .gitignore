@@ -13,3 +13,4 @@ code/mobile_app/.buildozer
 code/get-pip.py
 code/mobile_app_demo/.buildozer/
 code/mobile_app_demo/bin/
+code/mobile_app_demo/crash_log.txt

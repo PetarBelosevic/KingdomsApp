@@ -7,6 +7,7 @@ from kivy.lang import Builder
 from kivy.utils import platform
 from kivy.resources import resource_find
 from kivy.storage.jsonstore import JsonStore
+from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
 from kivy.uix.anchorlayout import AnchorLayout
@@ -115,6 +116,15 @@ class KingdomsApp(App):
         if not self.android:
             print("Camera capture is only available on Android.")
             return
+
+        # !
+        from android.permissions import check_permission, Permission, request_permissions
+        if not check_permission(Permission.CAMERA):
+            request_permissions([Permission.CAMERA])
+            # print("Camera permission requested. Tap again after granting permission.")
+            return
+        # !
+
         self.camera_capture = self.camera_class()
         self.camera_capture.capture(self.save_image)
         # self.detect_board()
@@ -167,8 +177,11 @@ class KingdomsApp(App):
     # --------------------------------------------------
     # data processing methods
     def save_image(self, data):
-        self._go_to_default("demo", "left")
-
+        # !
+        # Camera callback can arrive off the main thread; schedule UI work safely.
+        Clock.schedule_once(lambda dt: self._go_to_default("demo", "left"), 0)
+        # !
+        
         # convert bytes to cv2 image
         # nparr = np.frombuffer(data, np.uint8)
         # self.image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
