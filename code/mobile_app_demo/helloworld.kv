@@ -20,7 +20,7 @@
     
 
 <BaseLabel@Label>:
-    font_size: "24sp"
+    font_size: "20sp" # 24
     size_hint_y: None
     height: self.texture_size[1] + dp(20)
     text_size: self.width, None
@@ -39,7 +39,7 @@
 <DemoScreen@Screen>:
     BaseBoxLayout:
         BaseLabel:
-            text: "This is a demo screen for testing purposes."
+            text: app.demo_text
         BaseButton:
             text: "Back to Start"
             on_release: app.go_to("start", "right")

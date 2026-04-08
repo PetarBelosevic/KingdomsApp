@@ -1,7 +1,7 @@
 import os
+import cv2
 # import numpy as np
-# import cv2
-import time
+# import time
 
 
 from kivy.app import App
@@ -13,21 +13,38 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
 from kivy.uix.anchorlayout import AnchorLayout
+
+from kivy.properties import StringProperty
+
 from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+import traceback
 
-if platform == "android":
+# from mobile_app_demo.camera import OneShotCamera
+
+# if platform == "android":
+#     from jnius import autoclass, cast
+#     from android import activity, mActivity
+
+#     Activity = autoclass('android.app.Activity')
+#     Intent = autoclass('android.content.Intent')
+#     MediaStore = autoclass('android.provider.MediaStore')
+#     Environment = autoclass('android.os.Environment')
+#     File = autoclass('java.io.File')
+#     FileProvider = autoclass('androidx.core.content.FileProvider')
+
+try:
+    from android.permissions import request_permissions, Permission, check_permission
+    from android.activity import bind as activity_bind
     from jnius import autoclass, cast
-    from android import activity, mActivity
+    ANDROID = True
+except ImportError:
+    ANDROID = False
+CAMERA_REQUEST_CODE = 1001
 
-    Activity = autoclass('android.app.Activity')
-    Intent = autoclass('android.content.Intent')
-    MediaStore = autoclass('android.provider.MediaStore')
-    Environment = autoclass('android.os.Environment')
-    File = autoclass('java.io.File')
-    FileProvider = autoclass('androidx.core.content.FileProvider')
+# from camera import OneShotCamera
 
 
-# from camera import Camera2Capture
 
 # --------------------------------------------------
 
@@ -48,7 +65,12 @@ class GameInfoPopup(AnchorLayout):
 # --------------------------------------------------
 
 class KingdomsApp(App):
-    REQUEST_IMAGE_CAPTURE = 0x123
+    demo_text = StringProperty("demo")
+
+    def set_status(self, msg):
+        print(f'[CameraApp] {msg}')
+        self.demo_text = msg
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -59,13 +81,11 @@ class KingdomsApp(App):
     def build(self):
         self.android = platform == "android"
         if self.android:
-            from camera import Camera2Capture
-            self.camera_class = Camera2Capture
-
+        #     from camera import Camera2Capture
+        #     self.camera_class = Camera2Capture
             from android.permissions import request_permissions, Permission
             request_permissions([Permission.CAMERA])
-            activity.bind(on_activity_result=self.on_activity_result)
-
+            activity_bind(on_activity_result=self.on_activity_result)
 
         kv_path = resource_find("helloworld.kv") or os.path.join(self.app_dir, "helloworld.kv") # TODO change
         root = Builder.load_file(kv_path)
@@ -113,19 +133,6 @@ class KingdomsApp(App):
         self.game_data.clear()
         self.clear_metadata()
 
-    def get_filename(self):
-        ts = int(time.time() * 1000)
-        return f"takepicture_{ts}.jpg"
-
-    def _create_camera_output(self):
-        pictures_dir = mActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        filename = self.get_filename()
-        photo_file = File(pictures_dir, filename)
-        self.last_filename = photo_file.getAbsolutePath()
-        authority = f"{mActivity.getPackageName()}.fileprovider"
-        photo_uri = FileProvider.getUriForFile(mActivity, authority, photo_file)
-        return photo_uri
-
     # --------------------------------------------------
     # Start screen methods
 
@@ -148,80 +155,27 @@ class KingdomsApp(App):
     # image retrieval methods # TODO 
 
     def take_picture(self):
-        if not self.android:
+        self.start_camera()
+        self.go_to("demo", "left")
+
+
+    def on_gallery_selection(self, selection):
+        self._pending_gallery_selection = selection[0] if selection else ""
+
+
+    def use_selected_from_gallery(self):
+        cv2 = self._get_cv2()
+        if cv2 is None:
             return
 
-        from android.permissions import check_permission, Permission, request_permissions
-        if not check_permission(Permission.CAMERA):
-            request_permissions([Permission.CAMERA])
+        if not self._pending_gallery_selection:
+            self.processing_status = "No image selected yet."
             return
 
-        intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        photo_uri = self._create_camera_output()
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, cast('android.os.Parcelable', photo_uri))
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        mActivity.startActivityForResult(intent, self.REQUEST_IMAGE_CAPTURE)
-
-
-    def on_activity_result(self, requestCode, resultCode, intent):
-        if requestCode != self.REQUEST_IMAGE_CAPTURE:
-            return
-
-        if resultCode != Activity.RESULT_OK:
-            print("Camera capture cancelled or failed.")
-            return
-
-        try:
-            if not hasattr(self, "last_filename") or not os.path.exists(self.last_filename):
-                print("Camera did not produce an output file.")
-                return
-
-            with open(self.last_filename, "rb") as f:
-                jpeg_data = f.read()
-
-            self.save_image(jpeg_data)
-        except Exception as e:
-            print("Error while handling camera result:", e)
-
-
-    # def take_new_photo(self): # TODO
-    #     # open camera and take photo, then save to temp file and set selected_image_path
-    #     # print("Open camera and take photo")
-    #     if not self.android:
-    #         print("Camera capture is only available on Android.")
-    #         return
-
-    #     # !
-    #     from android.permissions import check_permission, Permission, request_permissions
-    #     if not check_permission(Permission.CAMERA):
-    #         request_permissions([Permission.CAMERA])
-    #         # print("Camera permission requested. Tap again after granting permission.")
-    #         return
-    #     # !
-
-    #     self.camera_capture = self.camera_class()
-    #     self.camera_capture.capture(self.save_image)
-    #     # self.detect_board()
-
-
-    # def on_gallery_selection(self, selection):
-    #     self._pending_gallery_selection = selection[0] if selection else ""
-
-
-    # def use_selected_from_gallery(self):
-    #     cv2 = self._get_cv2()
-    #     if cv2 is None:
-    #         return
-
-    #     if not self._pending_gallery_selection:
-    #         self.processing_status = "No image selected yet."
-    #         return
-
-    #     self.selected_image_path = self._pending_gallery_selection
-    #     self.image = cv2.imread(self.selected_image_path)
-    #     self._pending_gallery_selection = ""
-    #     self.detect_board()
+        self.selected_image_path = self._pending_gallery_selection
+        self.image = cv2.imread(self.selected_image_path)
+        self._pending_gallery_selection = ""
+        self.detect_board()
 
     # --------------------------------------------------
     # image display
@@ -251,24 +205,7 @@ class KingdomsApp(App):
 
     # --------------------------------------------------
     # data processing methods
-    def save_image(self, data):
-        # Keep captured image in app state for downstream processing.
-        self.image = data
 
-        # When using full-resolution intent capture, remove temp file after loading bytes.
-        if hasattr(self, "last_filename") and self.last_filename and os.path.exists(self.last_filename):
-            try:
-                os.remove(self.last_filename)
-            except Exception as e:
-                print("Failed to remove temporary camera file:", e)
-
-        # Camera callback can arrive off the main thread; schedule UI work safely.
-        Clock.schedule_once(lambda dt: self._go_to_default("demo", "left"), 0)
-        # !
-
-        # convert bytes to cv2 image
-        # nparr = np.frombuffer(data, np.uint8)
-        # self.image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
 
     # def detect_board(self):
@@ -280,6 +217,163 @@ class KingdomsApp(App):
 
     # --------------------------------------------------
 
+    # Camera intent methods (Android only)
+    # --------------------------------------------------- launch camera intent
+
+    def start_camera(self, *args):
+        if not ANDROID:
+            self.set_status('Android only.')
+            return
+        if not check_permission(Permission.CAMERA):
+            self.set_status('Camera permission denied.')
+            request_permissions([Permission.CAMERA])
+            return
+        try:
+            self._launch_camera()
+        except Exception:
+            err = traceback.format_exc()
+            print(err)
+            self.set_status(f'Error:\n{err[-400:]}')
+
+
+    def _launch_camera(self):
+        Intent         = autoclass('android.content.Intent')
+        MediaStore     = autoclass('android.provider.MediaStore')
+        MediaImages    = autoclass('android.provider.MediaStore$Images$Media')
+        MediaColumns   = autoclass('android.provider.MediaStore$MediaColumns')
+        ContentValues  = autoclass('android.content.ContentValues')
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        Build_VERSION  = autoclass('android.os.Build$VERSION')
+
+        activity = PythonActivity.mActivity
+        context  = activity.getApplicationContext()
+
+        values = ContentValues()
+        # Use MediaColumns (declaring class) — these now resolve correctly
+        values.put(MediaColumns.DISPLAY_NAME, 'kivy_temp_photo.jpg')
+        values.put(MediaColumns.MIME_TYPE,    'image/jpeg')
+        if Build_VERSION.SDK_INT >= 29:
+            # RELATIVE_PATH is also declared on MediaColumns (API 29+)
+            values.put(MediaColumns.RELATIVE_PATH, 'Pictures/KivyTemp')
+
+        self.temp_photo_uri = context.getContentResolver().insert(MediaImages.EXTERNAL_CONTENT_URI, values)
+
+        if self.temp_photo_uri is None:
+            self.set_status('Error: MediaStore.insert() returned null.\n'
+                            'Check WRITE_EXTERNAL_STORAGE on Android < 10.')
+            return
+
+        intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        # Cast Uri → Parcelable so pyjnius picks the right putExtra() overload
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, cast('android.os.Parcelable', self.temp_photo_uri))
+
+        activity.startActivityForResult(intent, CAMERA_REQUEST_CODE)
+        self.set_status('Camera open — take your photo...')
+
+    # --------------------------------------------------- activity result back
+
+    def on_activity_result(self, request_code, result_code, data):
+        self.set_status('Returned from camera intent, processing result...')
+
+        if request_code != CAMERA_REQUEST_CODE:
+            return
+        Activity = autoclass('android.app.Activity')
+        if result_code != Activity.RESULT_OK:
+            self._cleanup_mediastore()
+            self.set_status('Photo cancelled.')
+            return
+        try:
+            self._load_photo()
+        except Exception:
+            err = traceback.format_exc()
+            print(err)
+            self.set_status(f'Load error:\n{err[-400:]}')
+            self._cleanup_mediastore()
+
+
+    def _load_photo(self):
+        self.set_status('Decoding photo...')
+
+        PythonActivity   = autoclass('org.kivy.android.PythonActivity')
+        BitmapFactory    = autoclass('android.graphics.BitmapFactory')
+        CompressFormat   = autoclass('android.graphics.Bitmap$CompressFormat')
+        FileOutputStream = autoclass('java.io.FileOutputStream')
+
+        activity = PythonActivity.mActivity
+        context  = activity.getApplicationContext()
+
+        cache_dir = activity.getCacheDir().getAbsolutePath()
+        self.temp_cache_file = os.path.join(cache_dir, 'kivy_display.jpg')
+
+        istream = context.getContentResolver().openInputStream(
+            self.temp_photo_uri)
+        bitmap = BitmapFactory.decodeStream(istream)
+        istream.close()
+
+        if bitmap is None:
+            self.set_status('Error: BitmapFactory returned null.')
+            self._cleanup_mediastore()
+            return
+
+        fos = FileOutputStream(self.temp_cache_file)
+        bitmap.compress(CompressFormat.JPEG, 95, fos)
+        fos.flush()
+        fos.close()
+        bitmap.recycle()
+
+        # !
+        # Verify file was written
+        if not os.path.exists(self.temp_cache_file):
+            self.set_status('Error: Cache file not created.')
+            self._cleanup_mediastore()
+            return
+        
+        file_size = os.path.getsize(self.temp_cache_file)
+        self.set_status(f'Cache file created: {file_size} bytes. Loading with cv2...')
+
+        # Load image for board detection (same as use_selected_from_gallery)
+        try:
+            self.image = cv2.imread(self.temp_cache_file)
+            if self.image is None:
+                self.set_status('Error: cv2.imread returned None.')
+                self._cleanup_mediastore()
+                self._cleanup_all(None)
+                return
+            self.set_status(f'Image loaded: {self.image.shape}. Cleaning up in 1 s...')
+        except Exception as e:
+            self.set_status(f'Error loading image: {str(e)[:100]}')
+            print(f'cv2.imread error: {traceback.format_exc()}')
+            self._cleanup_mediastore()
+            self._cleanup_all(None)
+            return
+        # !
+
+        Clock.schedule_once(self._cleanup_all, 1.0)
+
+    # ---------------------------------------------------------------- cleanup
+
+    def _cleanup_all(self, dt):
+        if self.temp_cache_file and os.path.exists(self.temp_cache_file):
+            try:
+                os.remove(self.temp_cache_file)
+            except OSError:
+                pass
+        self.temp_cache_file = None
+        self._cleanup_mediastore()
+        self.set_status('Photo displayed (temp files deleted).')
+
+
+    def _cleanup_mediastore(self):
+        if self.temp_photo_uri is None:
+            return
+        try:
+            PythonActivity = autoclass('org.kivy.android.PythonActivity')
+            context = PythonActivity.mActivity.getApplicationContext()
+            context.getContentResolver().delete(
+                self.temp_photo_uri, None, None)
+        except Exception:
+            pass
+        self.temp_photo_uri = None
 
 # --------------------------------------------------
 
