@@ -1,9 +1,15 @@
 import os
+import sys
 import cv2
 # import numpy as np
 # import time
 
+current_dir = os.path.dirname(os.path.abspath(__file__)) # dataset_framework directory
+project_root = os.path.dirname(current_dir) # diplomski directory
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
+    
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.utils import platform
@@ -17,21 +23,11 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.properties import StringProperty
 
 from kivy.uix.popup import Popup
-from kivy.uix.label import Label
 import traceback
 
+from image_processing import rectify_image
+
 # from mobile_app_demo.camera import OneShotCamera
-
-# if platform == "android":
-#     from jnius import autoclass, cast
-#     from android import activity, mActivity
-
-#     Activity = autoclass('android.app.Activity')
-#     Intent = autoclass('android.content.Intent')
-#     MediaStore = autoclass('android.provider.MediaStore')
-#     Environment = autoclass('android.os.Environment')
-#     File = autoclass('java.io.File')
-#     FileProvider = autoclass('androidx.core.content.FileProvider')
 
 try:
     from android.permissions import request_permissions, Permission, check_permission
@@ -55,6 +51,9 @@ class StartScreen(Screen):
     pass
 
 class ImageMethodScreen(Screen):
+    pass
+
+class DetectedBoardScreen(Screen):
     pass
 
 # --------------------------------------------------
@@ -120,10 +119,6 @@ class KingdomsApp(App):
             extra_work()
 
 
-    def go_to_demo(self, dt):
-        self._go_to_default("demo", "left")
-
-
     def clear_metadata(self):
         self.image = None
         self.board_model = None
@@ -152,12 +147,7 @@ class KingdomsApp(App):
 
 
     # --------------------------------------------------
-    # image retrieval methods # TODO 
-
-    def take_picture(self):
-        self.start_camera()
-        self.go_to("demo", "left")
-
+    # image retrieval methods via gallery # TODO 
 
     def on_gallery_selection(self, selection):
         self._pending_gallery_selection = selection[0] if selection else ""
@@ -180,40 +170,37 @@ class KingdomsApp(App):
     # --------------------------------------------------
     # image display
 
-    # def show_image(self, image):
-    #     # cv2 = self._get_cv2()
-    #     # if cv2 is None:
-    #     #     return
-
-    #     frame = image  # your cv2 image (numpy array)
-    #     # 1. Convert BGR → RGB
-    #     buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #     # 2. Flip vertically
-    #     buf = cv2.flip(buf, 0)
-    #     # 3. Convert to bytes
-    #     buf = buf.tobytes()
-    #     # 4. Create texture
-    #     texture = Texture.create(
-    #         size=(frame.shape[1], frame.shape[0]),
-    #         colorfmt='rgb'
-    #     )
-    #     # 5. Blit buffer
-    #     texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
-    #     # 6. Display in Image widget
-    #     screen = self.root.get_screen("detected_board")
-    #     screen.ids.board.texture = texture
+    def show_image(self, image):
+        frame = image  # your cv2 image (numpy array)
+        # 1. Convert BGR → RGB
+        buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # 2. Flip vertically
+        buf = cv2.flip(buf, 0)
+        # 3. Convert to bytes
+        buf = buf.tobytes()
+        # 4. Create texture
+        texture = Texture.create(
+            size=(frame.shape[1], frame.shape[0]),
+            colorfmt='rgb'
+        )
+        # 5. Blit buffer
+        texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
+        # 6. Display in Image widget
+        screen = self.root.get_screen("detected_board")
+        screen.ids.board.texture = texture
 
     # --------------------------------------------------
     # data processing methods
 
-
-
-    # def detect_board(self):
-    #     # from image_processing import rectify_image
-
-    #     # self.image = rectify_image(self.image)
-    #     self._go_to_default("detected_board", "left")
-    #     self.show_image(self.image)
+    def detect_board(self):
+        # if self.image is None:
+        #     self.set_status("No image to process.")
+        #     self._go_to_default("demo", "left")
+        #     return
+        
+        self.image = rectify_image(self.image)
+        self._go_to_default("detected_board", "left")
+        self.show_image(self.image)
 
     # --------------------------------------------------
 
@@ -339,18 +326,28 @@ class KingdomsApp(App):
                 self._cleanup_mediastore()
                 self._cleanup_all(None)
                 return
-            self.set_status(f'Image loaded: {self.image.shape}. Cleaning up in 1 s...')
+            self.set_status(f'Image loaded: {self.image.shape}. Processing...')
+            # Proceed with board detection
+            Clock.schedule_once(self._process_photo, 0.0)
         except Exception as e:
             self.set_status(f'Error loading image: {str(e)[:100]}')
             print(f'cv2.imread error: {traceback.format_exc()}')
             self._cleanup_mediastore()
             self._cleanup_all(None)
             return
-        # !
-
-        Clock.schedule_once(self._cleanup_all, 1.0)
 
     # ---------------------------------------------------------------- cleanup
+
+    def _process_photo(self, dt):
+        """Called after image is loaded - detect board then cleanup."""
+        try:
+            self.detect_board()
+        except Exception as e:
+            self.set_status(f'Board detection error: {str(e)[:100]}')
+            print(f'detect_board error: {traceback.format_exc()}')
+        finally:
+            Clock.schedule_once(self._cleanup_all, 0.1)
+
 
     def _cleanup_all(self, dt):
         if self.temp_cache_file and os.path.exists(self.temp_cache_file):

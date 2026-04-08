@@ -94,7 +94,6 @@ RootScreenManager:
 
 # --------------------------------------------------
 
-# TODO
 <ImageMethodScreen>:
     BaseBoxLayout:
         BaseLabel:
@@ -102,7 +101,7 @@ RootScreenManager:
         BaseButton:
             disabled: not app.android
             text: "Take New Photo"
-            on_release: app.take_new_photo() # TODO
+            on_release: app.take_new_photo()
         BaseButton:
             text: "Load Existing Photo"
             on_release: app.go_to("gallery", "left")

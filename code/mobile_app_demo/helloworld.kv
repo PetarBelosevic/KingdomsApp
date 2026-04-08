@@ -35,7 +35,7 @@
     font_size: "28sp"
     background_color: (0.65, 0.65, 0.65, 1)
 
-
+# !
 <DemoScreen@Screen>:
     BaseBoxLayout:
         BaseLabel:
@@ -43,6 +43,7 @@
         BaseButton:
             text: "Back to Start"
             on_release: app.go_to("start", "right")
+# !
 
 # --------------------------------------------------
 
@@ -55,15 +56,16 @@ RootScreenManager:
         name: "image_method"
     # GalleryScreen:
     #     name: "gallery"
-    # DetectedBoardScreen:
-    #     name: "detected_board"
+    DetectedBoardScreen:
+        name: "detected_board"
     # BoardModelScreen:
     #     name: "board_model"
     # RoundResultsScreen:
     #     name: "round_results"
+    # !
     DemoScreen:
         name: "demo"
-
+    # !
 
 # --------------------------------------------------
 
@@ -97,13 +99,14 @@ RootScreenManager:
         BaseButton:
             text: "Analyze One Image"
             on_release: app.go_to("image_method", "left", app.clear_game)
+        # !
         BaseButton:
             text: "Demo"
             on_release: app.go_to("demo", "left")
+        # !
 
 # --------------------------------------------------
 
-# TODO
 <ImageMethodScreen>:
     BaseBoxLayout:
         BaseLabel:
@@ -111,10 +114,29 @@ RootScreenManager:
         BaseButton:
             disabled: not app.android
             text: "Take New Photo"
-            on_release: app.take_picture() # TODO
+            on_release: app.start_camera()
         BaseButton:
             text: "Load Existing Photo"
             # on_release: app.go_to("gallery", "left")
         BaseButton:
             text: "Back"
             on_release: app.go_to("start", "right")
+
+# --------------------------------------------------
+
+<DetectedBoardScreen>:
+    BaseBoxLayout:
+        BaseLabel:
+            text: "Detected Board"
+        Image:
+            id: board
+        HorizontalGrid:
+            BaseButton:
+                text: "Back to Start"
+                on_release: app.go_to("start", "right", app.clear_metadata)
+            BaseButton:
+                text: "Back"
+                on_release: app.go_to("image_method", "right", app.clear_metadata)
+        BaseButton:
+            text: "Continue"
+            on_release: app.go_to("board_model", "left", app.generate_board_model)
