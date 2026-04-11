@@ -19,13 +19,15 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.textinput import TextInput
 
 from kivy.properties import StringProperty
 
 from kivy.uix.popup import Popup
 import traceback
 
-from image_processing import rectify_image
+from image_processing import rectify_image, BoardModel
+from game_logic import calculate_player_points
 
 # from mobile_app_demo.camera import OneShotCamera
 
@@ -53,7 +55,13 @@ class StartScreen(Screen):
 class ImageMethodScreen(Screen):
     pass
 
+class GalleryScreen(Screen):
+    pass
+
 class DetectedBoardScreen(Screen):
+    pass
+
+class BoardModelScreen(Screen):
     pass
 
 # --------------------------------------------------
@@ -62,6 +70,91 @@ class GameInfoPopup(AnchorLayout):
     pass
 
 # --------------------------------------------------
+
+class BaseTextInput(TextInput):
+    # We validate input in insert_text; TextInput input_filter must be None,
+    # a known keyword ("int"/"float"), or a callable.
+    input_filter = None
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        bold_font = resource_find("Roboto-Bold.ttf")
+        if bold_font:
+            self.font_name = bold_font
+        self.bind(text=self._update_text_color)
+        self._update_text_color(self, self.text)
+
+
+    def insert_text(self, substring, from_undo=False):
+        # Keep only allowed characters and reject edits that cannot produce a valid token.
+        filtered = "".join(ch for ch in substring if ch.lower() in "rgbywdm0123456-")
+        if not filtered:
+            return
+
+        cursor = self.cursor_index()
+        candidate = (self.text[:cursor] + filtered + self.text[cursor:]).lower()
+        if self._is_valid_prefix(candidate):
+            return super().insert_text(filtered, from_undo=from_undo)
+
+
+    @staticmethod
+    def _is_valid_prefix(text):
+        if text == "":
+            return True
+
+        if text in {"r", "g", "b", "y", "-", "w", "d", "m", "gm"}:
+            return True
+
+        if len(text) == 1 and text in {"1", "2", "3", "4", "5", "6"}:
+            return True
+
+        if len(text) == 2 and text[0] in {"r", "g", "b", "y"} and text[1] in {"1", "2", "3", "4"}:
+            return True
+
+        if len(text) == 2 and text[0] == "-" and text[1] in {"1", "2", "3", "4", "5", "6"}:
+            return True
+
+        return False
+    
+    
+    def _update_text_color(self, instance, value):
+        """Update text color and border based on content."""
+        color = self._get_color_for_text(value)
+        self.foreground_color = color
+    
+
+    def _get_color_for_text(self, text):
+        """Return RGBA color tuple based on text content."""
+        text = text.strip()
+        
+        # Castle colors (red, green, blue, yellow)
+        if text.lower() in ['r1', 'r2', 'r3', 'r4']:
+            return (1, 0, 0, 1)  # Red
+        elif text.lower() in ['g1', 'g2', 'g3', 'g4']:
+            return (0, 0.8, 0, 1)  # Green
+        elif text.lower() in ['b1', 'b2', 'b3', 'b4']:
+            return (0, 0, 1, 1)  # Blue
+        elif text.lower() in ['y1', 'y2', 'y3', 'y4']:
+            return (0.8, 0.8, 0.0, 1)  # yellow
+        
+        # Numbers (1-6) - light blue
+        elif text in ['1', '2', '3', '4', '5', '6']:
+            return (0.5, 0.8, 1.0, 1)  # light blue
+        
+        # Negative numbers (-1 to -6) - orange
+        elif text in ['-1', '-2', '-3', '-4', '-5', '-6']:
+            return (0.9, 0.5, 0, 1)  # orange
+        
+        # Special symbols (w, gm, d, m) - light purple
+        elif text.lower() in ['w', 'gm', 'd', 'm']:
+            return (0.5, 0.3, 0.9, 1)  # purple
+        
+        # Default (empty or invalid) - black
+        else:
+            return (0, 0, 0, 1)  # Black
+    
+# --------------------------------------------------
+    
 
 class KingdomsApp(App):
     demo_text = StringProperty("demo")
@@ -75,6 +168,8 @@ class KingdomsApp(App):
         super().__init__(**kwargs)
         self.app_dir = os.path.dirname(os.path.abspath(__file__))
         self.game_data = JsonStore(os.path.join(self.app_dir, "game_data.json"))
+        models_dir = os.path.join(self.app_dir, "onnx_models")
+        self.board_model_processing_unit = BoardModel(path_to_models=models_dir)
 
 
     def build(self):
@@ -82,10 +177,10 @@ class KingdomsApp(App):
         if self.android:
         #     from camera import Camera2Capture
         #     self.camera_class = Camera2Capture
-            from android.permissions import request_permissions, Permission
-            request_permissions([Permission.CAMERA])
+            # from android.permissions import request_permissions, Permission
+            request_permissions([Permission.CAMERA, Permission.READ_EXTERNAL_STORAGE, Permission.READ_MEDIA_IMAGES])
             activity_bind(on_activity_result=self.on_activity_result)
-
+    
         kv_path = resource_find("helloworld.kv") or os.path.join(self.app_dir, "helloworld.kv") # TODO change
         root = Builder.load_file(kv_path)
         root.transition = SlideTransition(direction="left")
@@ -145,28 +240,6 @@ class KingdomsApp(App):
         popupWindow = Popup(title="Game Info", content=show, size_hint=(0.8,0.8))
         popupWindow.open() # show the popup
 
-
-    # --------------------------------------------------
-    # image retrieval methods via gallery # TODO 
-
-    def on_gallery_selection(self, selection):
-        self._pending_gallery_selection = selection[0] if selection else ""
-
-
-    def use_selected_from_gallery(self):
-        cv2 = self._get_cv2()
-        if cv2 is None:
-            return
-
-        if not self._pending_gallery_selection:
-            self.processing_status = "No image selected yet."
-            return
-
-        self.selected_image_path = self._pending_gallery_selection
-        self.image = cv2.imread(self.selected_image_path)
-        self._pending_gallery_selection = ""
-        self.detect_board()
-
     # --------------------------------------------------
     # image display
 
@@ -201,6 +274,101 @@ class KingdomsApp(App):
         self.image = rectify_image(self.image)
         self._go_to_default("detected_board", "left")
         self.show_image(self.image)
+
+    # --------------------------------------------------
+    # board model generation
+
+    def generate_board_model(self):
+        if self.board_model_processing_unit is None:
+            self.set_status("Board model processing unit not initialized.")
+            self._go_to_default("demo", "left")
+            return
+            if self.board_model_processing_unit is None:
+                self._show_error_popup(
+                    "Model Loading Error",
+                    f"Could not load ONNX models.\n\n{self.model_init_error or 'Unknown error'}"
+                )
+                return
+
+        self.board_model = self.board_model_processing_unit.generate_board_model(self.image)
+        self.go_to("board_model", "left", self._initialize_symbol_grid)
+
+
+    def _initialize_symbol_grid(self):
+        grid = self.root.get_screen("board_model").ids.board_model
+        grid.clear_widgets()
+
+        for row in self.board_model:
+            for symbol in row:
+                if isinstance(symbol, int):
+                    symbol = str(symbol)
+                    
+                cell = BaseTextInput(
+                    text=symbol
+                )
+                grid.add_widget(cell)
+
+
+    def update_board_model_from_input(self):
+        grid = self.root.get_screen("board_model").ids.board_model
+        updated_model = []
+        n = len(self.board_model)
+        m = len(self.board_model[0]) if n > 0 else 0
+        for i, row in enumerate(self.board_model):
+            updated_row = []
+            for j, _ in enumerate(row):
+                cell = grid.children[n * m - (i * m + j) - 1]
+                text = cell.text.strip()
+                # cast to int if possible, otherwise keep as string
+                if text.lstrip("-").isdigit():
+                    updated_row.append(int(text))
+                else:
+                    updated_row.append(cell.text)
+            updated_model.append(updated_row)
+        self.board_model = updated_model
+
+    
+    def calculate_scores(self):
+        self.update_board_model_from_input()
+
+        if not self.game_data.exists("last_score"):
+            self.game_data.put("last_score", r=0, g=0, b=0, y=0)
+        
+        points = calculate_player_points(self.board_model)
+        self.game_data.put("new_score", **points)
+
+        # sum last and new scores to get total score
+        total_score = {color: self.game_data.get("last_score")[color] + points[color] for color in ["r", "g", "b", "y"]}
+        self.game_data.put("total_score", **total_score)
+
+        if self.game_data.exists("round"):
+            current_round = self.game_data.get("round")["round"]
+            self.game_data.put("round", round=current_round+1)
+        self.go_to("round_results", "left", self.prepare_results)
+
+    # --------------------------------------------------
+    # image retrieval methods via gallery # TODO 
+
+    def on_gallery_selection(self, selection):
+        self._pending_gallery_selection = selection[0] if selection else ""
+
+
+    def use_selected_from_gallery(self):
+        if not self._pending_gallery_selection:
+            self.set_status("No image selected yet.")
+            return
+
+        self.selected_image_path = self._pending_gallery_selection
+        try:
+            self.image = cv2.imread(self.selected_image_path)
+            if self.image is None:
+                self.set_status('Error: Could not load selected image.')
+                return
+            self._pending_gallery_selection = ""
+            self.detect_board()
+        except Exception as e:
+            self.set_status(f'Error loading image: {str(e)[:100]}')
+            print(f'Gallery load error: {traceback.format_exc()}')
 
     # --------------------------------------------------
 

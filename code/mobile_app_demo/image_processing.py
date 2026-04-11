@@ -5,6 +5,7 @@ import os
 from board_detection import detect_board
 from board_rectification import rectify_board
 from grid_model import GridModel
+from onnx_model import OnnxModel
 
 
 def rectify_image(img):
@@ -19,15 +20,15 @@ def rectify_image(img):
         corners = detect_board(img)
     except RuntimeError as exc:
         # set corners to default - whole image
-        corners = np.array([
-            [0, 0],
-            [img.shape[1] - 1, 0],
-            [img.shape[1] - 1, img.shape[0] - 1],
-            [0, img.shape[0] - 1]
-        ])
-
+        # corners = np.array([
+        #     [0, 0],
+        #     [img.shape[1] - 1, 0],
+        #     [img.shape[1] - 1, img.shape[0] - 1],
+        #     [0, img.shape[0] - 1]
+        # ])
+        return img
+    
     rectified = rectify_board(img, corners, save_path=None)
-
     return rectified
 
 
@@ -122,14 +123,11 @@ class ModelService:
         self.output_names = {}
 
         self._load_models(model_dir)
+        self.input_name = "input"
+        self.output_name = "output"
 
 
     def _load_models(self, model_dir):
-        try:
-            import onnxruntime as ort
-        except Exception as exc:
-            raise RuntimeError(f"onnxruntime is not available: {exc}") from exc
-
         if not os.path.isdir(model_dir):
             raise FileNotFoundError(f"Model directory not found: {model_dir}")
 
@@ -137,35 +135,89 @@ class ModelService:
             if file.endswith(".onnx"):
                 model_path = os.path.join(model_dir, file)
 
-                session = ort.InferenceSession(
-                    model_path,
-                    providers=["CPUExecutionProvider"]
-                )
+                # session = ort.InferenceSession(
+                #     model_path,
+                #     providers=["CPUExecutionProvider"]
+                # )
 
                 model_name = file.replace(".onnx", "")
 
-                self.sessions[model_name] = session
-                self.input_names[model_name] = session.get_inputs()[0].name
-                self.output_names[model_name] = session.get_outputs()[0].name
+                self.sessions[model_name] = OnnxModel(model_path)
+                # self.input_names[model_name] = "input" # session.get_inputs()[0].name
+                # self.output_names[model_name] = "output" # session.get_outputs()[0].name
 
                 print(f"Loaded model: {model_name}")
 
 
     def predict(self, model_name, input_data):
         session = self.sessions[model_name]
-        input_name = self.input_names[model_name]
+        # input_name = self.input_names[model_name]
+        # output_name = self.output_names[model_name]
 
         # Ensure correct format
         if not isinstance(input_data, np.ndarray):
             input_data = np.array(input_data, dtype=np.float32)
 
         outputs = session.run(
-            None,
-            {input_name: input_data}
+            {self.input_name: input_data}
         )
-        # argmax
-        prediction = np.argmax(outputs[0], axis=1)
+        # argmax - outputs is a dict, get the output by name
+        output_array = outputs[self.output_name]
+        prediction = np.argmax(output_array, axis=1)
         return prediction[0]
+
+
+# class ModelService:
+#     def __init__(self, model_dir="mobile_app/onnx_models"):
+#         self.sessions = {}
+#         self.input_names = {}
+#         self.output_names = {}
+
+#         self._load_models(model_dir)
+
+
+#     def _load_models(self, model_dir):
+#         try:
+#             import onnxruntime as ort
+#         except Exception as exc:
+#             raise RuntimeError(f"onnxruntime is not available: {exc}") from exc
+
+#         if not os.path.isdir(model_dir):
+#             raise FileNotFoundError(f"Model directory not found: {model_dir}")
+
+#         for file in os.listdir(model_dir):
+#             if file.endswith(".onnx"):
+#                 model_path = os.path.join(model_dir, file)
+
+#                 session = ort.InferenceSession(
+#                     model_path,
+#                     providers=["CPUExecutionProvider"]
+#                 )
+
+#                 model_name = file.replace(".onnx", "")
+
+#                 self.sessions[model_name] = session
+#                 self.input_names[model_name] = session.get_inputs()[0].name
+#                 self.output_names[model_name] = session.get_outputs()[0].name
+
+#                 print(f"Loaded model: {model_name}")
+
+
+#     def predict(self, model_name, input_data):
+#         session = self.sessions[model_name]
+#         input_name = self.input_names[model_name]
+
+#         # Ensure correct format
+#         if not isinstance(input_data, np.ndarray):
+#             input_data = np.array(input_data, dtype=np.float32)
+
+#         outputs = session.run(
+#             None,
+#             {input_name: input_data}
+#         )
+#         # argmax
+#         prediction = np.argmax(outputs[0], axis=1)
+#         return prediction[0]
 
 
 if __name__ == "__main__":
@@ -174,3 +226,8 @@ if __name__ == "__main__":
     input_data = np.random.rand(1, 3, 100, 100).astype(np.float32)
     output = model_service.predict("card_castle_model", input_data)
     print("Prediction output:", output)
+
+
+
+
+# Can you modify #sym:OnnxModel class in a way that it loads multiple models and keeps them in the dictionary. #sym:run method would then get model name and input data as arguments. Input data would be expected to be numpy arrays, and the output would be argmax of the given model's output. So basically I would like you to modify #sym:OnnxModel behaviour and interface with the #sym:ModelService class in a way that it supports multiple models with one instance 
