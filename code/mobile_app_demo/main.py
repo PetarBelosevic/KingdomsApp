@@ -64,9 +64,15 @@ class DetectedBoardScreen(Screen):
 class BoardModelScreen(Screen):
     pass
 
+class RoundResultsScreen(Screen):
+    pass
+
 # --------------------------------------------------
 
 class GameInfoPopup(AnchorLayout):
+    pass
+
+class WinnerPopup(AnchorLayout):
     pass
 
 # --------------------------------------------------
@@ -157,11 +163,9 @@ class BaseTextInput(TextInput):
     
 
 class KingdomsApp(App):
-    demo_text = StringProperty("demo")
-
-    def set_status(self, msg):
-        print(f'[CameraApp] {msg}')
-        self.demo_text = msg
+    round = StringProperty("")
+    score = StringProperty("")
+    winner = StringProperty("")
 
 
     def __init__(self, **kwargs):
@@ -170,6 +174,8 @@ class KingdomsApp(App):
         self.game_data = JsonStore(os.path.join(self.app_dir, "game_data.json"))
         models_dir = os.path.join(self.app_dir, "onnx_models")
         self.board_model_processing_unit = BoardModel(path_to_models=models_dir)
+        self.image = None
+        self.board_model = None
 
 
     def build(self):
@@ -263,11 +269,10 @@ class KingdomsApp(App):
         screen.ids.board.texture = texture
 
     # --------------------------------------------------
-    # data processing methods
+    # board detection
 
     def detect_board(self):
         # if self.image is None:
-        #     self.set_status("No image to process.")
         #     self._go_to_default("demo", "left")
         #     return
         
@@ -280,15 +285,7 @@ class KingdomsApp(App):
 
     def generate_board_model(self):
         if self.board_model_processing_unit is None:
-            self.set_status("Board model processing unit not initialized.")
-            self._go_to_default("demo", "left")
             return
-            if self.board_model_processing_unit is None:
-                self._show_error_popup(
-                    "Model Loading Error",
-                    f"Could not load ONNX models.\n\n{self.model_init_error or 'Unknown error'}"
-                )
-                return
 
         self.board_model = self.board_model_processing_unit.generate_board_model(self.image)
         self.go_to("board_model", "left", self._initialize_symbol_grid)
@@ -347,6 +344,69 @@ class KingdomsApp(App):
         self.go_to("round_results", "left", self.prepare_results)
 
     # --------------------------------------------------
+    # results screen methods
+
+    def prepare_results(self):
+        round = self.game_data.get("round")["round"] if self.game_data.exists("round") else "-"
+        total_scores = self.game_data.get("total_score") if self.game_data.exists("total_score") else {"r": "-", "g": "-", "b": "-", "y": "-"}
+        new_scores = self.game_data.get("new_score") if self.game_data.exists("new_score") else {"r": "-", "g": "-", "b": "-", "y": "-"}
+        last_scores = self.game_data.get("last_score") if self.game_data.exists("last_score") else {"r": 0, "g": 0, "b": 0, "y": 0}
+        
+        self.round = f"Round: {round}"
+        score_rows = [
+            ("red", "r"),
+            ("green", "g"),
+            ("blue", "b"),
+            ("yellow", "y"),
+        ]
+        self.score = "\n".join(
+            f"{name:<6}: {total_scores[key]:>3} ({last_scores[key]:>3} + {new_scores[key]:>3})"
+            for name, key in score_rows
+        )
+
+
+    def next_round(self):
+        self.clear_metadata()
+        if self.game_data.exists("round"):
+            current_round = self.game_data.get("round")["round"]
+            if current_round == 3:
+                # find the max score and determine winner
+                total_scores = self.game_data.get("total_score")
+                max_score = max(total_scores.values())
+                winners = [color for color, score in total_scores.items() if score == max_score]
+                # replace color keys with color names
+                color_names = {"r": "Red", "g": "Green", "b": "Blue", "y": "Yellow"}
+                winners = [color_names[color] for color in winners]
+
+                if len(winners) == 1:
+                    self.winner = f"{winners[0]} won!"
+                else:
+                    self.winner = f"{', '.join(winners)} tied for the win!"
+
+                self.show_winner()
+            else:
+                # last_score becomes total_score for the next round
+                total_score = self.game_data.get("total_score")
+                self.game_data.put("last_score", **total_score)
+                self._go_to_default("image_method", "left")
+        else:
+            self.go_to("start", "left", self.clear_game)
+
+
+    def decrease_round(self):
+        if self.game_data.exists("round"):
+            current_round = self.game_data.get("round")["round"]
+            if current_round > 0:
+                self.game_data.put("round", round=current_round-1)
+
+
+    def show_winner(self):
+        show = WinnerPopup()
+        popupWindow = Popup(title="Winner", content=show, size_hint=(0.6,0.3))
+        popupWindow.bind(on_dismiss=lambda _: self.go_to("start", "left", self.clear_game))
+        popupWindow.open() # show the popup
+
+    # --------------------------------------------------
     # image retrieval methods via gallery # TODO 
 
     def on_gallery_selection(self, selection):
@@ -355,20 +415,17 @@ class KingdomsApp(App):
 
     def use_selected_from_gallery(self):
         if not self._pending_gallery_selection:
-            self.set_status("No image selected yet.")
             return
 
         self.selected_image_path = self._pending_gallery_selection
         try:
             self.image = cv2.imread(self.selected_image_path)
             if self.image is None:
-                self.set_status('Error: Could not load selected image.')
                 return
             self._pending_gallery_selection = ""
             self.detect_board()
         except Exception as e:
-            self.set_status(f'Error loading image: {str(e)[:100]}')
-            print(f'Gallery load error: {traceback.format_exc()}')
+            pass
 
     # --------------------------------------------------
 
@@ -377,18 +434,14 @@ class KingdomsApp(App):
 
     def start_camera(self, *args):
         if not ANDROID:
-            self.set_status('Android only.')
             return
         if not check_permission(Permission.CAMERA):
-            self.set_status('Camera permission denied.')
             request_permissions([Permission.CAMERA])
             return
         try:
             self._launch_camera()
         except Exception:
-            err = traceback.format_exc()
-            print(err)
-            self.set_status(f'Error:\n{err[-400:]}')
+            pass
 
 
     def _launch_camera(self):
@@ -414,8 +467,6 @@ class KingdomsApp(App):
         self.temp_photo_uri = context.getContentResolver().insert(MediaImages.EXTERNAL_CONTENT_URI, values)
 
         if self.temp_photo_uri is None:
-            self.set_status('Error: MediaStore.insert() returned null.\n'
-                            'Check WRITE_EXTERNAL_STORAGE on Android < 10.')
             return
 
         intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -423,32 +474,23 @@ class KingdomsApp(App):
         intent.putExtra(MediaStore.EXTRA_OUTPUT, cast('android.os.Parcelable', self.temp_photo_uri))
 
         activity.startActivityForResult(intent, CAMERA_REQUEST_CODE)
-        self.set_status('Camera open — take your photo...')
 
     # --------------------------------------------------- activity result back
 
     def on_activity_result(self, request_code, result_code, data):
-        self.set_status('Returned from camera intent, processing result...')
-
         if request_code != CAMERA_REQUEST_CODE:
             return
         Activity = autoclass('android.app.Activity')
         if result_code != Activity.RESULT_OK:
             self._cleanup_mediastore()
-            self.set_status('Photo cancelled.')
             return
         try:
             self._load_photo()
         except Exception:
-            err = traceback.format_exc()
-            print(err)
-            self.set_status(f'Load error:\n{err[-400:]}')
             self._cleanup_mediastore()
 
 
     def _load_photo(self):
-        self.set_status('Decoding photo...')
-
         PythonActivity   = autoclass('org.kivy.android.PythonActivity')
         BitmapFactory    = autoclass('android.graphics.BitmapFactory')
         CompressFormat   = autoclass('android.graphics.Bitmap$CompressFormat')
@@ -466,7 +508,6 @@ class KingdomsApp(App):
         istream.close()
 
         if bitmap is None:
-            self.set_status('Error: BitmapFactory returned null.')
             self._cleanup_mediastore()
             return
 
@@ -479,27 +520,21 @@ class KingdomsApp(App):
         # !
         # Verify file was written
         if not os.path.exists(self.temp_cache_file):
-            self.set_status('Error: Cache file not created.')
             self._cleanup_mediastore()
             return
         
         file_size = os.path.getsize(self.temp_cache_file)
-        self.set_status(f'Cache file created: {file_size} bytes. Loading with cv2...')
 
         # Load image for board detection (same as use_selected_from_gallery)
         try:
             self.image = cv2.imread(self.temp_cache_file)
             if self.image is None:
-                self.set_status('Error: cv2.imread returned None.')
                 self._cleanup_mediastore()
                 self._cleanup_all(None)
                 return
-            self.set_status(f'Image loaded: {self.image.shape}. Processing...')
             # Proceed with board detection
             Clock.schedule_once(self._process_photo, 0.0)
         except Exception as e:
-            self.set_status(f'Error loading image: {str(e)[:100]}')
-            print(f'cv2.imread error: {traceback.format_exc()}')
             self._cleanup_mediastore()
             self._cleanup_all(None)
             return
@@ -511,8 +546,7 @@ class KingdomsApp(App):
         try:
             self.detect_board()
         except Exception as e:
-            self.set_status(f'Board detection error: {str(e)[:100]}')
-            print(f'detect_board error: {traceback.format_exc()}')
+            pass
         finally:
             Clock.schedule_once(self._cleanup_all, 0.1)
 
@@ -525,7 +559,6 @@ class KingdomsApp(App):
                 pass
         self.temp_cache_file = None
         self._cleanup_mediastore()
-        self.set_status('Photo displayed (temp files deleted).')
 
 
     def _cleanup_mediastore(self):

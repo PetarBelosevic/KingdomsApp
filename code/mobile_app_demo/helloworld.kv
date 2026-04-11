@@ -20,7 +20,7 @@
     
 
 <BaseLabel@Label>:
-    font_size: "24sp" # 24
+    font_size: "24sp"
     size_hint_y: None
     height: self.texture_size[1] + dp(20)
     text_size: self.width, None
@@ -34,16 +34,6 @@
     valign: "center"
     font_size: "28sp"
     background_color: (0.65, 0.65, 0.65, 1)
-
-# !
-<DemoScreen@Screen>:
-    BaseBoxLayout:
-        BaseLabel:
-            text: app.demo_text
-        BaseButton:
-            text: "Back to Start"
-            on_release: app.go_to("start", "right")
-# !
 
 # --------------------------------------------------
 
@@ -60,12 +50,8 @@ RootScreenManager:
         name: "detected_board"
     BoardModelScreen:
         name: "board_model"
-    # RoundResultsScreen:
-    #     name: "round_results"
-    # !
-    DemoScreen:
-        name: "demo"
-    # !
+    RoundResultsScreen:
+        name: "round_results"
 
 # --------------------------------------------------
 
@@ -99,11 +85,6 @@ RootScreenManager:
         BaseButton:
             text: "Analyze One Image"
             on_release: app.go_to("image_method", "left", app.clear_game)
-        # !
-        BaseButton:
-            text: "Demo"
-            on_release: app.go_to("demo", "left")
-        # !
 
 # --------------------------------------------------
 
@@ -171,11 +152,30 @@ RootScreenManager:
 			rows: 5
 			spacing: dp(4)
             padding: dp(4)
-        HorizontalGrid:
-            BaseButton:
-                text: "Back to Start"
-                on_release: app.go_to("start", "right", app.clear_game)
-            BaseButton:
-                text: "Continue"
-                disabled: "True"
-                on_release: app.go_to("round_results", "left", app.calculate_scores)
+        BaseButton:
+            text: "Back to Start"
+            on_release: app.go_to("start", "right", app.clear_game)
+        BaseButton:
+            text: "Continue"
+            on_release: app.go_to("round_results", "left", app.calculate_scores)
+            
+# --------------------------------------------------
+
+<RoundResultsScreen>:
+    BaseBoxLayout:
+        BaseLabel:
+            text: "Round Results"
+        BaseLabel:
+            text: app.score
+            font_name: "RobotoMono-Regular"
+        BaseLabel:
+            text: app.round
+        BaseButton:
+            text: "Back to Start"
+            on_release: app.go_to("start", "right", app.clear_game)
+        BaseButton:
+            text: "Back to Board"
+            on_release: app.go_to("board_model", "right", app.decrease_round)
+        BaseButton:
+            text: "Next"
+            on_release: app.next_round()
