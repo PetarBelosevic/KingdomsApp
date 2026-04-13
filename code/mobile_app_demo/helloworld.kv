@@ -97,31 +97,46 @@ RootScreenManager:
             text: "Take New Photo"
             on_release: app.start_camera()
         BaseButton:
-            disabled: "True" # TODO 
+            disabled: not app.android
             text: "Load Existing Photo"
-            on_release: app.go_to("gallery", "left")
+            on_release: app.start_gallery()
         BaseButton:
             text: "Back"
             on_release: app.go_to("start", "right")
 
 # --------------------------------------------------
 
-# <GalleryScreen>:
-#     BaseBoxLayout:
-#         BaseLabel:
-#             text: "Select Existing Photo"
-#         FileChooserIconView:
-#             id: chooser
-#             path: "/storage/emulated/0/DCIM/Camera"
-#             filters: ["*.png", "*.PNG", "*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.bmp", "*.BMP", "*.webp", "*.WEBP"]
-#             on_selection: app.on_gallery_selection(self.selection)
-#         # HorizontalGrid:
-#         BaseButton:
-#             text: "Back"
-#             on_release: app.go_to("image_method", "right")
-#         BaseButton:
-#             text: "Select"
-#             on_release: app.use_selected_from_gallery()
+<GalleryScreen>:
+    on_enter: app.load_gallery(); self.populate_thumbnails()
+    
+    gallery_grid: gallery_grid
+    
+    BaseBoxLayout:
+        orientation: "vertical"
+        spacing: dp(8)
+        padding: dp(8)
+        
+        BaseLabel:
+            size_hint_y: None
+            height: dp(40)
+            text: "Select Photo (newest 100)"
+        
+        ScrollView:
+            GridLayout:
+                id: gallery_grid
+                cols: 4
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+        
+        HorizontalGrid:
+            BaseButton:
+                text: "Select"
+                on_release: app.use_selected_from_gallery()
+            BaseButton:
+                text: "Back"
+                on_release: app.go_to("image_method", "right")
+
 
 # --------------------------------------------------
 
@@ -156,9 +171,11 @@ RootScreenManager:
             text: "Back to Start"
             on_release: app.go_to("start", "right", app.clear_game)
         BaseButton:
+            text: "Back"
+            on_release: app.go_to("detected_board", "right", app.show_image)
+        BaseButton:
             text: "Continue"
             on_release: app.go_to("round_results", "left", app.calculate_scores)
-            
 # --------------------------------------------------
 
 <RoundResultsScreen>:

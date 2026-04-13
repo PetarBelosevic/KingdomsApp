@@ -11,6 +11,7 @@ IZVORI:
 	https://towardsdatascience.com/3-ways-to-convert-python-app-into-apk-77f4c9cd55af/
 	https://stackoverflow.com/questions/61728185/python-kivy-how-to-disable-enable-a-button
 	https://github.com/aicelen/Onnx-Kivy-Android
+	https://groups.google.com/g/kivy-users/c/bjsG2j9bptI/m/-Oe_aGo0newJ - gallery intent
 
 TODO:
 	- editing model doesn't work

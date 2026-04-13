@@ -1,8 +1,8 @@
 import os
 import sys
 import cv2
-# import numpy as np
-# import time
+from pathlib import Path
+import traceback
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) # dataset_framework directory
 project_root = os.path.dirname(current_dir) # diplomski directory
@@ -21,10 +21,15 @@ from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.textinput import TextInput
 
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.core.window import Window
+
 from kivy.properties import StringProperty
 
 from kivy.uix.popup import Popup
-import traceback
 
 from image_processing import rectify_image, BoardModel
 from game_logic import calculate_player_points
@@ -39,9 +44,7 @@ try:
 except ImportError:
     ANDROID = False
 CAMERA_REQUEST_CODE = 1001
-
-# from camera import OneShotCamera
-
+GALLERY_REQUEST_CODE = 1002
 
 
 # --------------------------------------------------
@@ -55,8 +58,25 @@ class StartScreen(Screen):
 class ImageMethodScreen(Screen):
     pass
 
-class GalleryScreen(Screen):
-    pass
+# class GalleryScreen(Screen):
+#     pass
+    # def populate_thumbnails(self):
+    #     """Populate gallery grid with thumbnail buttons."""
+    #     if not hasattr(self, 'gallery_grid'):
+    #         return
+        
+    #     grid = self.gallery_grid
+    #     grid.clear_widgets()
+        
+    #     # Get app instance and sorted photos
+    #     app = App.get_running_app()
+    #     if not hasattr(app, 'sorted_photos') or not app.sorted_photos:
+    #         return
+        
+    #     # Create thumbnail button for each photo
+    #     for photo_path in app.sorted_photos:
+    #         btn = app.create_thumbnail_button(photo_path)
+    #         grid.add_widget(btn)
 
 class DetectedBoardScreen(Screen):
     pass
@@ -176,6 +196,8 @@ class KingdomsApp(App):
         self.board_model_processing_unit = BoardModel(path_to_models=models_dir)
         self.image = None
         self.board_model = None
+        self.sorted_photos = []
+        self._selected_photo_path = None
 
 
     def build(self):
@@ -249,8 +271,8 @@ class KingdomsApp(App):
     # --------------------------------------------------
     # image display
 
-    def show_image(self, image):
-        frame = image  # your cv2 image (numpy array)
+    def show_image(self):
+        frame = self.image  # your cv2 image (numpy array)
         # 1. Convert BGR → RGB
         buf = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         # 2. Flip vertically
@@ -271,14 +293,9 @@ class KingdomsApp(App):
     # --------------------------------------------------
     # board detection
 
-    def detect_board(self):
-        # if self.image is None:
-        #     self._go_to_default("demo", "left")
-        #     return
-        
+    def detect_board(self):        
         self.image = rectify_image(self.image)
-        self._go_to_default("detected_board", "left")
-        self.show_image(self.image)
+        self.go_to("detected_board", "left", self.show_image)
 
     # --------------------------------------------------
     # board model generation
@@ -407,25 +424,185 @@ class KingdomsApp(App):
         popupWindow.open() # show the popup
 
     # --------------------------------------------------
-    # image retrieval methods via gallery # TODO 
+    # image retrieval methods via custom gallery 
+    # idea from https://groups.google.com/g/kivy-users/c/bjsG2j9bptI/m/-Oe_aGo0newJ
 
-    def on_gallery_selection(self, selection):
-        self._pending_gallery_selection = selection[0] if selection else ""
-
-
-    def use_selected_from_gallery(self):
-        if not self._pending_gallery_selection:
+    def start_gallery(self, *args):
+        print(f"DEBUG: start_gallery called, ANDROID={ANDROID}")
+        if not ANDROID:
+            print("DEBUG: Not on Android, returning")
             return
-
-        self.selected_image_path = self._pending_gallery_selection
+        has_perm = check_permission(Permission.READ_EXTERNAL_STORAGE) or check_permission(Permission.READ_MEDIA_IMAGES)
+        print(f"DEBUG: READ_EXTERNAL_STORAGE={check_permission(Permission.READ_EXTERNAL_STORAGE)}, READ_MEDIA_IMAGES={check_permission(Permission.READ_MEDIA_IMAGES)}")
+        if not has_perm:
+            print("DEBUG: Requesting READ_MEDIA_IMAGES and READ_EXTERNAL_STORAGE permissions")
+            request_permissions([Permission.READ_MEDIA_IMAGES, Permission.READ_EXTERNAL_STORAGE])
+            return
         try:
-            self.image = cv2.imread(self.selected_image_path)
-            if self.image is None:
-                return
-            self._pending_gallery_selection = ""
-            self.detect_board()
+            print("DEBUG: Launching gallery intent")
+            self._launch_gallery()
         except Exception as e:
-            pass
+            print(f"DEBUG: Exception in start_gallery: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+    def _launch_gallery(self):
+        Intent         = autoclass('android.content.Intent')
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        activity = PythonActivity.mActivity
+
+        self.activity = activity
+
+        intent = Intent()
+        intent.setAction(Intent.ACTION_PICK)
+        intent.setType("image/*")
+
+        activity.startActivityForResult(intent, GALLERY_REQUEST_CODE)
+
+    
+    def _load_photo_from_gallery(self, intent):
+        """Load photo from gallery intent result."""
+        try:
+            if intent is None:
+                print("DEBUG: intent is None")
+                return
+            
+            MediaStore_Images_Media_DATA = "_data"
+            currentActivity = self.activity
+
+            selectedImage = intent.getData()
+            print(f"DEBUG: selectedImage = {selectedImage}")
+            if selectedImage is None:
+                print("DEBUG: selectedImage is None")
+                return
+
+            filePathColumn = [MediaStore_Images_Media_DATA]
+            cursor = currentActivity.getContentResolver().query(selectedImage, filePathColumn, None, None, None)
+            
+            if cursor is None:
+                print("DEBUG: cursor is None")
+                return
+            
+            if not cursor.moveToFirst():
+                print("DEBUG: cursor.moveToFirst() returned False")
+                cursor.close()
+                return
+
+            columnIndex = cursor.getColumnIndex(filePathColumn[0])
+            print(f"DEBUG: columnIndex = {columnIndex}")
+            if columnIndex < 0:
+                print("DEBUG: columnIndex < 0")
+                cursor.close()
+                return
+            
+            picturePath = cursor.getString(columnIndex)
+            cursor.close()
+            print(f"DEBUG: picturePath = {picturePath}")
+
+            if not picturePath or not os.path.exists(picturePath):
+                print(f"DEBUG: picturePath invalid or doesn't exist: {picturePath}")
+                return
+
+            self.image = cv2.imread(picturePath)
+            print(f"DEBUG: cv2.imread returned image: {self.image is not None}")
+            if self.image is None:
+                print("DEBUG: cv2.imread failed")
+                return
+
+            print("DEBUG: Scheduling detect_board")
+            Clock.schedule_once(lambda dt: self.detect_board(), 0.0) # !
+        except Exception as e:
+            print(f"DEBUG: Exception in _load_photo_from_gallery: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+    # def get_sorted_photos(self, directory, limit=100):
+    #     """Get photo files sorted by modification time (newest first).
+        
+    #     Args:
+    #         directory: Path to photo directory
+    #         limit: Maximum number of photos to return (default 100)
+        
+    #     Returns:
+    #         List of file paths sorted newest first (up to limit)
+    #     """
+    #     try:
+    #         files = []
+    #         for filename in os.listdir(directory):
+    #             filepath = os.path.join(directory, filename)
+    #             if os.path.isfile(filepath):
+    #                 ext = os.path.splitext(filename)[1].lower()
+    #                 if ext in ['.jpg', '.jpeg', '.png', '.bmp', '.webp']:
+    #                     try:
+    #                         mtime = os.path.getmtime(filepath)
+    #                         files.append((filepath, mtime))
+    #                     except OSError:
+    #                         pass
+            
+    #         files.sort(key=lambda x: x[1], reverse=True)
+    #         sorted_paths = [f[0] for f in files[:limit]]
+    #         return sorted_paths
+    #     except Exception as e:
+    #         print(f'get_sorted_photos error: {e}')
+    #         return []
+
+
+    # def load_gallery(self):
+    #     """Load sorted photos when entering gallery screen."""
+    #     gallery_dir = "/storage/emulated/0/DCIM/Camera"
+    #     self.sorted_photos = self.get_sorted_photos(gallery_dir, limit=100)
+    #     self._selected_photo_path = None
+
+
+    # def create_thumbnail_button(self, photo_path):
+    #     """Create a button with thumbnail for a photo."""
+    #     btn = Button(size_hint_y=None, height=150)
+    #     try:
+    #         # Create thumbnail texture
+    #         img = cv2.imread(photo_path)
+    #         if img is not None:
+    #             # Resize for thumbnail
+    #             img = cv2.resize(img, (150, 150))
+    #             # Convert BGR to RGB
+    #             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    #             # Convert to bytes
+    #             buf = img.tobytes()
+    #             # Create texture
+    #             texture = Texture.create(size=(150, 150), colorfmt='rgb')
+    #             texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
+    #             btn.background_normal = ''
+    #             btn.canvas.clear()
+    #             with btn.canvas:
+    #                 from kivy.graphics import Rectangle
+    #                 Rectangle(texture=texture, pos=btn.pos, size=btn.size)
+    #     except:
+    #         btn.text = "Error"
+        
+    #     # Bind photo path to button
+    #     btn.photo_path = photo_path
+    #     btn.bind(on_press=self.on_thumbnail_press)
+    #     return btn
+
+
+    # def on_thumbnail_press(self, instance):
+    #     """Handle thumbnail selection."""
+    #     self._selected_photo_path = instance.photo_path
+
+
+    # def use_selected_from_gallery(self):
+    #     """Load the selected photo and detect board."""
+    #     if not self._selected_photo_path:
+    #         return
+
+    #     try:
+    #         self.image = cv2.imread(self._selected_photo_path)
+    #         if self.image is None:
+    #             return
+    #         self.detect_board()
+    #     except Exception as e:
+    #         pass
 
     # --------------------------------------------------
 
@@ -478,16 +655,23 @@ class KingdomsApp(App):
     # --------------------------------------------------- activity result back
 
     def on_activity_result(self, request_code, result_code, data):
-        if request_code != CAMERA_REQUEST_CODE:
-            return
         Activity = autoclass('android.app.Activity')
         if result_code != Activity.RESULT_OK:
-            self._cleanup_mediastore()
+            if request_code == CAMERA_REQUEST_CODE:
+                self._cleanup_mediastore()
             return
-        try:
-            self._load_photo()
-        except Exception:
-            self._cleanup_mediastore()
+
+        if request_code == CAMERA_REQUEST_CODE:
+            try:
+                self._load_photo()
+            except Exception:
+                self._cleanup_mediastore()
+        
+        elif request_code == GALLERY_REQUEST_CODE:
+            try:
+                self._load_photo_from_gallery(data)
+            except Exception:
+                pass
 
 
     def _load_photo(self):
@@ -577,3 +761,6 @@ class KingdomsApp(App):
 
 if __name__ == '__main__':
     KingdomsApp().run()
+
+
+# Your solution kinda works, but it is buggy. First, when screen switches to the gallery screen the app freezes as it still takes too much to list all the images and then sort and filter them. Also, Thumbnails are buggy and most of them are just black. Howerver selection works, so functionality is theoretically ok, just the user experience is terrible
