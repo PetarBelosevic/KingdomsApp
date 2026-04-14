@@ -16,8 +16,6 @@ IZVORI:
 TODO:
 	- game info text
 	- rotate detected board image?
-	- make camera and gallery modules?
-
 
 
 from kivy.resources import resource_find

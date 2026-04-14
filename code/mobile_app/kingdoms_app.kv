@@ -19,6 +19,13 @@
     size_hint_y: None
 
 
+<VerticalGrid@GridLayout>:
+    columns: 1
+    spacing: dp(8)
+    padding: dp(8)
+    size_hint_y: None
+
+
 <BaseButton@Button>:
     font_size: "24sp"
     size_hint_y: None
@@ -60,22 +67,27 @@ RootScreenManager:
 # --------------------------------------------------
 
 <GameInfoPopup>:
-    spacing: dp(16)
-    padding: dp(16)
-    BaseLabel:
-        font_size: "20sp"
-        text: "Kingdoms is a tile-laying game designed by Reiner Knizia. Players take turns placing tiles on a shared board, aiming to create and control kingdoms. Each tile has different terrain types, and players score points based on the size and composition of their kingdoms. The game combines strategic placement with tactical decision-making, making it a favorite among board game enthusiasts."
+    title: "Game Info"
+    size_hint: 0.8, 0.8
+    AnchorLayout:
+        spacing: dp(8)
+        padding: dp(8)
+        BaseLabel:
+            font_size: "20sp"
+            text: "Kingdoms is a tile-laying game designed by Reiner Knizia. Players take turns placing tiles on a shared board, aiming to create and control kingdoms. Each tile has different terrain types, and players score points based on the size and composition of their kingdoms. The game combines strategic placement with tactical decision-making, making it a favorite among board game enthusiasts."
 
 
 <WinnerPopup>:
-    spacing: dp(16)
-    padding: dp(16)
-    BaseLabel:
-        id: winner_label
-        text: app.winner
-    BaseLabel:
-        text: app.score
-        font_name: "RobotoMono-Regular"
+    title: "Winner"
+    size_hint: 0.6, 0.5
+    on_dismiss: app.go_to("start", "left", app.clear_game)
+    VerticalGrid:
+        BaseLabel:
+            id: winner_label
+            text: app.winner
+        BaseLabel:
+            text: app.score
+            font_name: "RobotoMono-Regular"
 
 # --------------------------------------------------
 

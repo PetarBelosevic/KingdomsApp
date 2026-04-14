@@ -56,10 +56,10 @@ class RoundResultsScreen(Screen):
 
 # --------------------------------------------------
 
-class GameInfoPopup(AnchorLayout):
+class GameInfoPopup(Popup):
     pass
 
-class WinnerPopup(AnchorLayout):
+class WinnerPopup(Popup):
     pass
 
 # --------------------------------------------------
@@ -260,8 +260,7 @@ class KingdomsApp(App):
 
     def show_game_info(self):
         """Shows game info popup with instructions and rules."""
-        show = GameInfoPopup() 
-        popupWindow = Popup(title="Game Info", content=show, size_hint=(0.8,0.8))
+        popupWindow = GameInfoPopup()
         popupWindow.open() # show the popup
 
     # --------------------------------------------------
@@ -441,9 +440,7 @@ class KingdomsApp(App):
 
     def show_winner(self):
         """Shows the winner popup with the winner text based on game data and then goes back to the start screen when the popup is dismissed."""
-        show = WinnerPopup()
-        popupWindow = Popup(title="Winner", content=show, size_hint=(0.6,0.3))
-        popupWindow.bind(on_dismiss=lambda _: self.go_to("start", "left", self.clear_game))
+        popupWindow = WinnerPopup()
         popupWindow.open() # show the popup
 
     # --------------------------------------------------
