@@ -1,16 +1,11 @@
-import sys
 import cv2
 import numpy as np
 import os
 
-current_dir = os.path.dirname(os.path.abspath(__file__)) # dataset_framework directory
-project_root = os.path.dirname(current_dir) # diplomski directory
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from board.board_detection import detect_board
-from board.board_rectification import rectify_board
-from board.grid_model import GridModel
+from board_detection import detect_board
+from board_rectification import rectify_board
+from grid_model import GridModel
+from onnx_model import OnnxModel
 
 
 def rectify_image(img):
@@ -21,9 +16,12 @@ def rectify_image(img):
         scale = 1000 / max(height, width)
         img = cv2.resize(img, (int(width * scale), int(height * scale)))
 
-    corners = detect_board(img)
+    try:
+        corners = detect_board(img)
+    except RuntimeError as exc:
+        return img
+    
     rectified = rectify_board(img, corners, save_path=None)
-
     return rectified
 
 
@@ -118,49 +116,37 @@ class ModelService:
         self.output_names = {}
 
         self._load_models(model_dir)
+        self.input_name = "input"
+        self.output_name = "output"
 
 
     def _load_models(self, model_dir):
-        try:
-            import onnxruntime as ort
-        except Exception as exc:
-            raise RuntimeError(f"onnxruntime is not available: {exc}") from exc
-
         if not os.path.isdir(model_dir):
             raise FileNotFoundError(f"Model directory not found: {model_dir}")
 
         for file in os.listdir(model_dir):
             if file.endswith(".onnx"):
                 model_path = os.path.join(model_dir, file)
-
-                session = ort.InferenceSession(
-                    model_path,
-                    providers=["CPUExecutionProvider"]
-                )
-
                 model_name = file.replace(".onnx", "")
 
-                self.sessions[model_name] = session
-                self.input_names[model_name] = session.get_inputs()[0].name
-                self.output_names[model_name] = session.get_outputs()[0].name
+                self.sessions[model_name] = OnnxModel(model_path)
 
                 print(f"Loaded model: {model_name}")
 
 
     def predict(self, model_name, input_data):
         session = self.sessions[model_name]
-        input_name = self.input_names[model_name]
 
         # Ensure correct format
         if not isinstance(input_data, np.ndarray):
             input_data = np.array(input_data, dtype=np.float32)
 
         outputs = session.run(
-            None,
-            {input_name: input_data}
+            {self.input_name: input_data}
         )
-        # argmax
-        prediction = np.argmax(outputs[0], axis=1)
+        # argmax - outputs is a dict, get the output by name
+        output_array = outputs[self.output_name]
+        prediction = np.argmax(output_array, axis=1)
         return prediction[0]
 
 

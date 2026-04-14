@@ -14,9 +14,10 @@ IZVORI:
 	https://groups.google.com/g/kivy-users/c/bjsG2j9bptI/m/-Oe_aGo0newJ - gallery intent
 
 TODO:
-	- editing model doesn't work
-	- photo capture and gallery selection for android
-	- apk building and testing on android device
+	- game info text
+	- rotate detected board image?
+	- make camera and gallery modules?
+
 
 
 from kivy.resources import resource_find

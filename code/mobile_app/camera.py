@@ -1,316 +1,142 @@
-from jnius import autoclass, PythonJavaClass, java_method
+import os
+import cv2
+from kivy.clock import Clock
+
 try:
-    from android import activity
+    from android.permissions import request_permissions, Permission, check_permission
+    from android.activity import bind as activity_bind
+    from jnius import autoclass, cast
+    ANDROID = True
 except ImportError:
-    pass
-
-# Android classes
-Context = autoclass('android.content.Context')
-CameraManager = autoclass('android.hardware.camera2.CameraManager')
-CameraDevice = autoclass('android.hardware.camera2.CameraDevice')
-CaptureRequest = autoclass('android.hardware.camera2.CaptureRequest')
-ImageReader = autoclass('android.media.ImageReader')
-ImageFormat = autoclass('android.graphics.ImageFormat')
+    ANDROID = False
 
 
-# -------------------------
-# Image Listener
-# -------------------------
-class _ImageListener(PythonJavaClass):
-    __javainterfaces__ = ['android/media/ImageReader$OnImageAvailableListener']
-    __javacontext__ = 'app'
+CAMERA_REQUEST_CODE = 1001
 
-    def __init__(self, outer):
-        super().__init__()
-        self.outer = outer
 
-    @java_method('()V')
-    def onImageAvailable(self, reader):
-        image = reader.acquireLatestImage()
-        if not image:
+class OneShotCamera:
+    def __init__(self, app):
+        if not ANDROID:
+            raise RuntimeError("OneShotCamera is only available on Android")
+        self.app = app
+
+
+    def _launch_camera(self):
+        """Launches the camera intent to capture an image and save it to a temporary file."""
+        Intent         = autoclass('android.content.Intent')
+        MediaStore     = autoclass('android.provider.MediaStore')
+        MediaImages    = autoclass('android.provider.MediaStore$Images$Media')
+        MediaColumns   = autoclass('android.provider.MediaStore$MediaColumns')
+        ContentValues  = autoclass('android.content.ContentValues')
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        Build_VERSION  = autoclass('android.os.Build$VERSION')
+
+        activity = PythonActivity.mActivity
+        context  = activity.getApplicationContext()
+
+        values = ContentValues()
+        # Use MediaColumns (declaring class) — these now resolve correctly
+        values.put(MediaColumns.DISPLAY_NAME, 'kivy_temp_photo.jpg')
+        values.put(MediaColumns.MIME_TYPE,    'image/jpeg')
+        if Build_VERSION.SDK_INT >= 29:
+            # RELATIVE_PATH is also declared on MediaColumns (API 29+)
+            values.put(MediaColumns.RELATIVE_PATH, 'Pictures/KivyTemp')
+
+        self.temp_photo_uri = context.getContentResolver().insert(MediaImages.EXTERNAL_CONTENT_URI, values)
+
+        if self.temp_photo_uri is None:
             return
 
-        plane = image.getPlanes()[0]
-        buffer = plane.getBuffer()
+        intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        # Cast Uri → Parcelable so pyjnius picks the right putExtra() overload
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, cast('android.os.Parcelable', self.temp_photo_uri))
 
-        data = bytes(buffer.remaining())
-        buffer.get(data)
+        activity.startActivityForResult(intent, CAMERA_REQUEST_CODE)
 
-        image.close()
+    # --------------------------------------------------- activity result back
 
-        # Send result back to Python
-        self.outer._on_image(data)
+    def _load_photo(self):
+        """Load photo from camera intent result, and initiates board detection."""
+        PythonActivity   = autoclass('org.kivy.android.PythonActivity')
+        BitmapFactory    = autoclass('android.graphics.BitmapFactory')
+        CompressFormat   = autoclass('android.graphics.Bitmap$CompressFormat')
+        FileOutputStream = autoclass('java.io.FileOutputStream')
 
+        activity = PythonActivity.mActivity
+        context  = activity.getApplicationContext()
 
-# -------------------------
-# Camera Device Callback
-# -------------------------
-class _StateCallback(PythonJavaClass):
-    __javainterfaces__ = ['android/hardware/camera2/CameraDevice$StateCallback']
-    __javacontext__ = 'app'
+        cache_dir = activity.getCacheDir().getAbsolutePath()
+        self.temp_cache_file = os.path.join(cache_dir, 'kivy_display.jpg')
 
-    def __init__(self, outer):
-        super().__init__()
-        self.outer = outer
+        istream = context.getContentResolver().openInputStream(
+            self.temp_photo_uri)
+        bitmap = BitmapFactory.decodeStream(istream)
+        istream.close()
 
-    @java_method('(Landroid/hardware/camera2/CameraDevice;)V')
-    def onOpened(self, camera):
-        self.outer.camera = camera
-        self.outer._create_session()
+        if bitmap is None:
+            self._cleanup_mediastore()
+            return
 
-    @java_method('(Landroid/hardware/camera2/CameraDevice;)V')
-    def onDisconnected(self, camera):
-        camera.close()
+        fos = FileOutputStream(self.temp_cache_file)
+        bitmap.compress(CompressFormat.JPEG, 95, fos)
+        fos.flush()
+        fos.close()
+        bitmap.recycle()
 
-    @java_method('(Landroid/hardware/camera2/CameraDevice;I)V')
-    def onError(self, camera, error):
-        camera.close()
+        # !
+        # Verify file was written
+        if not os.path.exists(self.temp_cache_file):
+            self._cleanup_mediastore()
+            return
+        
+        file_size = os.path.getsize(self.temp_cache_file)
 
-
-# -------------------------
-# Capture Session Callback
-# -------------------------
-class _SessionCallback(PythonJavaClass):
-    __javainterfaces__ = ['android/hardware/camera2/CameraCaptureSession$StateCallback']
-    __javacontext__ = 'app'
-
-    def __init__(self, outer):
-        super().__init__()
-        self.outer = outer
-
-    @java_method('(Landroid/hardware/camera2/CameraCaptureSession;)V')
-    def onConfigured(self, session):
-        self.outer.session = session
-        self.outer._take_picture()
-
-    @java_method('(Landroid/hardware/camera2/CameraCaptureSession;)V')
-    def onConfigureFailed(self, session):
-        print("Camera session configuration failed")
-
-
-# -------------------------
-# Main Class
-# -------------------------
-class Camera2Capture:
-
-    def __init__(self, width=1920*4, height=1080*4):
-        self.context = activity.getApplicationContext()
-        self.manager = self.context.getSystemService(Context.CAMERA_SERVICE)
-
-        self.width = width
-        self.height = height
-
-        self.camera = None
-        self.session = None
-        self.reader = None
-
-        self.callback = None
-
-    # -------------------------
-    # Public API
-    # -------------------------
-    def capture(self, callback):
-        """
-        Capture one image.
-        callback(bytes) will be called with JPEG data.
-        """
-        self.callback = callback
-
-        camera_id = self.manager.getCameraIdList()[0]
-
-        # Setup ImageReader
-        self.reader = ImageReader.newInstance(
-            self.width,
-            self.height,
-            ImageFormat.JPEG,
-            1
-        )
-
-        self.image_listener = _ImageListener(self)
-        self.reader.setOnImageAvailableListener(self.image_listener, None)
-
-        # Open camera
-        self.state_cb = _StateCallback(self)
-        self.manager.openCamera(camera_id, self.state_cb, None)
-
-    # -------------------------
-    # Internal pipeline
-    # -------------------------
-    def _create_session(self):
-        surfaces = [self.reader.getSurface()]
-
-        self.session_cb = _SessionCallback(self)
-
-        self.camera.createCaptureSession(
-            surfaces,
-            self.session_cb,
-            None
-        )
-
-    def _take_picture(self):
-        builder = self.camera.createCaptureRequest(
-            CameraDevice.TEMPLATE_STILL_CAPTURE
-        )
-
-        builder.addTarget(self.reader.getSurface())
-
-        self.session.capture(
-            builder.build(),
-            None,
-            None
-        )
-
-    def _on_image(self, data):
-        if self.callback:
-            self.callback(data)
-
-        self._cleanup()
-
-    # -------------------------
-    # Cleanup
-    # -------------------------
-    def _cleanup(self):
+        # Load image for board detection (same as use_selected_from_gallery)
         try:
-            if self.session:
-                self.session.close()
-            if self.camera:
-                self.camera.close()
-            if self.reader:
-                self.reader.close()
+            self.app.image = cv2.imread(self.temp_cache_file)
+            if self.app.image is None:
+                self._cleanup_mediastore()
+                self._cleanup_all(None)
+                return
+            # Proceed with board detection
+            Clock.schedule_once(self._process_photo, 0.0)
         except Exception as e:
-            print("Cleanup error:", e)
+            self._cleanup_mediastore()
+            self._cleanup_all(None)
+            return
 
-        self.session = None
-        self.camera = None
-        self.reader = None
+    # ---------------------------------------------------------------- cleanup
 
-
-
-
-
-# from jnius import autoclass, PythonJavaClass, java_method, cast
-# from android import activity
-
-# # Android classes
-# CameraManager = autoclass('android.hardware.camera2.CameraManager')
-# ImageReader = autoclass('android.media.ImageReader')
-# Surface = autoclass('android.view.Surface')
-# ImageFormat = autoclass('android.graphics.ImageFormat')
-
-# Context = autoclass('android.content.Context')
+    def _process_photo(self, dt):
+        """Called after image is loaded - detect board then cleanup."""
+        try:
+            self.app.detect_board()
+        except Exception as e:
+            pass
+        finally:
+            Clock.schedule_once(self._cleanup_all, 0.1)
 
 
-# class ImageListener(PythonJavaClass):
-#     __javainterfaces__ = ['android/media/ImageReader$OnImageAvailableListener']
-#     __javacontext__ = 'app'
-
-#     def __init__(self, callback):
-#         super().__init__()
-#         self.callback = callback
-
-#     @java_method('()V')
-#     def onImageAvailable(self, reader):
-#         image = reader.acquireLatestImage()
-#         if image:
-#             plane = image.getPlanes()[0]
-#             buffer = plane.getBuffer()
-
-#             # Convert Java ByteBuffer → Python bytes
-#             data = bytes(buffer.remaining())
-#             buffer.get(data)
-
-#             image.close()
-
-#             # Send to Python
-#             self.callback(data)
+    def _cleanup_all(self, dt):
+        """Cleans up temporary files and media store entries after processing the captured image."""
+        if self.temp_cache_file and os.path.exists(self.temp_cache_file):
+            try:
+                os.remove(self.temp_cache_file)
+            except OSError:
+                pass
+        self.temp_cache_file = None
+        self._cleanup_mediastore()
 
 
-# class CameraCapture:
-#     def __init__(self):
-#         self.context = activity.getApplicationContext()
-#         self.manager = self.context.getSystemService(Context.CAMERA_SERVICE)
-
-#     def capture_once(self, callback):
-#         camera_id = self.manager.getCameraIdList()[0]
-
-#         # Create ImageReader (full-res JPEG)
-#         self.reader = ImageReader.newInstance(
-#             1920, 1080,  # you can increase later
-#             ImageFormat.JPEG,
-#             1
-#         )
-
-#         self.listener = ImageListener(callback)
-#         self.reader.setOnImageAvailableListener(self.listener, None)
-
-#         # ⚠️ FULL Camera2 setup omitted here (next step)
-#         print("Camera setup started (needs session wiring)")
-
-
-
-
-
-# CameraDevice = autoclass('android.hardware.camera2.CameraDevice')
-# CaptureRequest = autoclass('android.hardware.camera2.CaptureRequest')
-
-
-# class StateCallback(PythonJavaClass):
-#     __javainterfaces__ = ['android/hardware/camera2/CameraDevice$StateCallback']
-#     __javacontext__ = 'app'
-
-#     def __init__(self, outer):
-#         super().__init__()
-#         self.outer = outer
-
-#     @java_method('(Landroid/hardware/camera2/CameraDevice;)V')
-#     def onOpened(self, camera):
-#         self.outer.camera = camera
-#         self.outer.create_session()
-
-#     @java_method('(Landroid/hardware/camera2/CameraDevice;)V')
-#     def onDisconnected(self, camera):
-#         camera.close()
-
-#     @java_method('(Landroid/hardware/camera2/CameraDevice;I)V')
-#     def onError(self, camera, error):
-#         camera.close()
-
-
-# class CameraCapture(CameraCapture):  # extend previous
-
-#     def capture_once(self, callback):
-#         super().capture_once(callback)
-
-#         self.state_cb = StateCallback(self)
-#         self.manager.openCamera(camera_id, self.state_cb, None)
-
-#     def create_session(self):
-#         surfaces = [self.reader.getSurface()]
-
-#         def on_configured(session):
-#             self.session = session
-#             self.take_picture()
-
-#         SessionCallback = autoclass(
-#             'android.hardware.camera2.CameraCaptureSession$StateCallback'
-#         )
-
-#         # ⚠️ In real code you'd wrap this properly with PythonJavaClass
-#         self.camera.createCaptureSession(
-#             surfaces,
-#             None,
-#             None
-#         )
-
-#     def take_picture(self):
-#         request_builder = self.camera.createCaptureRequest(
-#             CameraDevice.TEMPLATE_STILL_CAPTURE
-#         )
-
-#         request_builder.addTarget(self.reader.getSurface())
-
-#         self.session.capture(
-#             request_builder.build(),
-#             None,
-#             None
-#         )
+    def _cleanup_mediastore(self):
+        """Deletes the temporary photo entry from the media store to prevent cluttering the user's gallery with temporary files."""
+        if self.temp_photo_uri is None:
+            return
+        try:
+            PythonActivity = autoclass('org.kivy.android.PythonActivity')
+            context = PythonActivity.mActivity.getApplicationContext()
+            context.getContentResolver().delete(
+                self.temp_photo_uri, None, None)
+        except Exception:
+            pass
+        self.temp_photo_uri = None

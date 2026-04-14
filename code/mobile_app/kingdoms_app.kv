@@ -1,15 +1,21 @@
 #:kivy 2.0
 
+<ResultsTable@GridLayout>:
+    cols: 4
+    spacing: dp(4)
+    padding: dp(4)
+
+
 <BaseBoxLayout@BoxLayout>:
     orientation: "vertical"
-    spacing: dp(16)
-    padding: dp(16)
+    spacing: dp(8)
+    padding: dp(8)
 
 
 <HorizontalGrid@GridLayout>:
     rows: 1
-    spacing: dp(16)
-    padding: dp(16)
+    spacing: dp(8)
+    padding: dp(8)
     size_hint_y: None
 
 
@@ -19,7 +25,7 @@
     height: dp(48)
     
 
-<BaseLabel@Label>:
+<BaseLabel>:
     font_size: "24sp"
     size_hint_y: None
     height: self.texture_size[1] + dp(20)
@@ -44,8 +50,6 @@ RootScreenManager:
         name: "start"
     ImageMethodScreen:
         name: "image_method"
-    # GalleryScreen:
-    #     name: "gallery"
     DetectedBoardScreen:
         name: "detected_board"
     BoardModelScreen:
@@ -69,6 +73,9 @@ RootScreenManager:
     BaseLabel:
         id: winner_label
         text: app.winner
+    Baselabel:
+        text: app.score
+        font_name: "RobotoMono-Regular"
 
 # --------------------------------------------------
 
@@ -91,6 +98,9 @@ RootScreenManager:
 <ImageMethodScreen>:
     BaseBoxLayout:
         BaseLabel:
+            text: app.score
+            font_name: "RobotoMono-Regular"
+        BaseLabel:
             text: "Choose how to provide an image"
         BaseButton:
             disabled: not app.android
@@ -101,42 +111,8 @@ RootScreenManager:
             text: "Load Existing Photo"
             on_release: app.start_gallery()
         BaseButton:
-            text: "Back"
+            text: app.back_button_text
             on_release: app.go_to("start", "right")
-
-# --------------------------------------------------
-
-<GalleryScreen>:
-    on_enter: app.load_gallery(); self.populate_thumbnails()
-    
-    gallery_grid: gallery_grid
-    
-    BaseBoxLayout:
-        orientation: "vertical"
-        spacing: dp(8)
-        padding: dp(8)
-        
-        BaseLabel:
-            size_hint_y: None
-            height: dp(40)
-            text: "Select Photo (newest 100)"
-        
-        ScrollView:
-            GridLayout:
-                id: gallery_grid
-                cols: 4
-                spacing: dp(8)
-                size_hint_y: None
-                height: self.minimum_height
-        
-        HorizontalGrid:
-            BaseButton:
-                text: "Select"
-                on_release: app.use_selected_from_gallery()
-            BaseButton:
-                text: "Back"
-                on_release: app.go_to("image_method", "right")
-
 
 # --------------------------------------------------
 
@@ -146,7 +122,6 @@ RootScreenManager:
             text: "Detected Board"
         Image:
             id: board
-        # HorizontalGrid:
         BaseButton:
             text: "Back to Start"
             on_release: app.go_to("start", "right", app.clear_metadata)
@@ -182,9 +157,48 @@ RootScreenManager:
     BaseBoxLayout:
         BaseLabel:
             text: "Round Results"
-        BaseLabel:
-            text: app.score
-            font_name: "RobotoMono-Regular"
+        ResultsTable:
+            id: results_table
+            BaseLabel:
+                text: ""
+            BaseLabel:
+                text: "Total"
+            BaseLabel:
+                text: "Last Round"
+            BaseLabel:
+                text: "This round"
+            BaseLabel:
+                text: "Red"
+            BaseLabel:
+                text: app.red_total
+            BaseLabel:
+                text: app.red_last
+            BaseLabel:
+                text: app.red_new
+            BaseLabel:
+                text: "Green"
+            BaseLabel:
+                text: app.green_total
+            BaseLabel:
+                text: app.green_last
+            BaseLabel:
+                text: app.green_new
+            BaseLabel:
+                text: "Blue"
+            BaseLabel:
+                text: app.blue_total
+            BaseLabel:
+                text: app.blue_last
+            BaseLabel:
+                text: app.blue_new
+            BaseLabel:
+                text: "Yellow"
+            BaseLabel:
+                text: app.yellow_total
+            BaseLabel:
+                text: app.yellow_last
+            BaseLabel:
+                text: app.yellow_new
         BaseLabel:
             text: app.round
         BaseButton:
