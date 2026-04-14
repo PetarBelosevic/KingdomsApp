@@ -2,10 +2,13 @@
 Inference of .onnx models for kivy android apps using native Java APIs.
 Made by aicelen 2025 released under MIT license.
 """
-
-from jnius import autoclass
+try:
+    from jnius import autoclass
+    ANDROID = True
+except ImportError:
+    ANDROID = False
 import numpy as np
-# from time import perf_counter
+
 
 # Import Java classes
 OrtSession = autoclass('ai.onnxruntime.OrtSession')

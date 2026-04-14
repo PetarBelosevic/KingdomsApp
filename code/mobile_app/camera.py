@@ -4,12 +4,10 @@ from kivy.clock import Clock
 
 try:
     from android.permissions import request_permissions, Permission, check_permission
-    from android.activity import bind as activity_bind
     from jnius import autoclass, cast
     ANDROID = True
 except ImportError:
     ANDROID = False
-
 
 CAMERA_REQUEST_CODE = 1001
 
@@ -19,6 +17,20 @@ class OneShotCamera:
         if not ANDROID:
             raise RuntimeError("OneShotCamera is only available on Android")
         self.app = app
+    
+    
+    # Camera intent methods (Android only) (from Claude)
+    def start_camera(self, *args):
+        """Checks for permissions, then launch camera intent to capture an image."""
+        if not ANDROID:
+            return
+        if not check_permission(Permission.CAMERA):
+            request_permissions([Permission.CAMERA])
+            return
+        try:
+            self.camera._launch_camera() # !
+        except Exception:
+            pass
 
 
     def _launch_camera(self):
@@ -54,6 +66,19 @@ class OneShotCamera:
         activity.startActivityForResult(intent, CAMERA_REQUEST_CODE)
 
     # --------------------------------------------------- activity result back
+
+    def on_activity_result_callback(self, request_code, result_code, intent):
+        """Handles results from camera intent, loads the captured image. Also handles cleanup of temporary files and media store entries."""
+        Activity = autoclass('android.app.Activity')
+        if result_code != Activity.RESULT_OK:
+            if request_code == CAMERA_REQUEST_CODE:
+                self.camera._cleanup_mediastore()
+            return
+        try:
+            self._load_photo() # !
+        except Exception:
+            self._cleanup_mediastore() # !
+
 
     def _load_photo(self):
         """Load photo from camera intent result, and initiates board detection."""
