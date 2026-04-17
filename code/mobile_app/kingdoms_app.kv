@@ -20,10 +20,9 @@
 
 
 <VerticalGrid@GridLayout>:
-    columns: 1
-    spacing: dp(8)
-    padding: dp(8)
-    size_hint_y: None
+    cols: 1
+    padding: dp(2)
+    spacing: dp(2)
 
 
 <BaseButton@Button>:
@@ -39,6 +38,25 @@
     text_size: self.width, None
     halign: "center"
     valign: "middle"
+
+
+<LegendLabel@BaseLabel>:
+    height: self.texture_size[1] + dp(4)
+    padding: dp(4)
+    spacing: dp(8)
+    font_size: "20sp"
+    valign: "top"
+
+
+<LegendLabelLeft@LegendLabel>:
+    size_hint_x: 0.25
+    size_hint_y: 1
+    halign: "right"
+
+
+<LegendLabelRight@LegendLabel>:
+    size_hint_x: 0.75
+    halign: "left"
 
 
 <BaseTextInput>:
@@ -74,8 +92,7 @@ RootScreenManager:
         padding: dp(8)
         BaseLabel:
             font_size: "20sp"
-            text: "Kingdoms is a tile-laying game designed by Reiner Knizia. Players take turns placing tiles on a shared board, aiming to create and control kingdoms. Each tile has different terrain types, and players score points based on the size and composition of their kingdoms. The game combines strategic placement with tactical decision-making, making it a favorite among board game enthusiasts."
-
+            text: "Kingdoms by Reiner Knizia is a tactical tile-placement game where players place castles and resource tiles on a grid to maximize gold over three rounds. Players must maximize the value of their castles in rows/columns while using hazards to decrease opponents' scores."
 
 <WinnerPopup>:
     title: "Winner"
@@ -88,6 +105,64 @@ RootScreenManager:
         BaseLabel:
             text: app.score
             font_name: "RobotoMono-Regular"
+
+
+<SymbolsLegendPopup>:
+    title: "Symbols Legend"
+    size_hint: 0.84, 0.6
+    ScrollView:
+        do_scroll_x: False
+        bar_width: dp(4)
+        VerticalGrid:
+            cols: 2
+            spacing: dp(4), dp(2)
+            size_hint_y: None
+            height: self.minimum_height
+            LegendLabelLeft:
+                text: "r1-r4:"
+            LegendLabelRight:
+                text: "red castles levels 1-4 (red color)"
+            LegendLabelLeft:
+                text: "g1-g4:"
+            LegendLabelRight:
+                text: "green castles levels 1-4 (green color)"
+            LegendLabelLeft:
+                text: "b1-b4:"
+            LegendLabelRight:
+                text: "blue castles levels 1-4 (blue color)"
+            LegendLabelLeft:
+                text: "y1-y4:"
+            LegendLabelRight:
+                text: "yellow castles levels 1-4 (yellow color)"
+            LegendLabelLeft:
+                text: "1 to 6:"
+            LegendLabelRight:
+                text: "resource cards values 1-6 (light blue color)"
+            LegendLabelLeft:
+                text: "-6 to -1:"
+            LegendLabelRight:
+                text: "hazard cards values -6 to -1 (orange color)"
+            LegendLabelLeft:
+                text: "d:"
+            LegendLabelRight:
+                text: "dragon (purple color)"
+            LegendLabelLeft:
+                text: "gm:"
+            LegendLabelRight:
+                text: "gold mine (purple color)"
+            LegendLabelLeft:
+                text: "m:"
+            LegendLabelRight:
+                text: "mountain (purple color)"
+            LegendLabelLeft:
+                text: "w:"
+            LegendLabelRight:
+                text: "wizard (purple color)"
+            LegendLabelLeft:
+                text: "e:"
+            LegendLabelRight:
+                text: "empty (black color)"
+        
 
 # --------------------------------------------------
 
@@ -132,8 +207,19 @@ RootScreenManager:
     BaseBoxLayout:
         BaseLabel:
             text: "Detected Board"
-        Image:
+        RotatableImage:
             id: board
+            canvas.before:
+                PushMatrix
+                Scale:
+                    x: self.rotation_scale
+                    y: self.rotation_scale
+                    origin: self.center
+                Rotate:
+                    angle: self.angle
+                    origin: self.center
+            canvas.after:
+                PopMatrix
         BaseButton:
             text: "Back to Start"
             on_release: app.go_to("start", "right", app.clear_metadata)
@@ -154,6 +240,9 @@ RootScreenManager:
 			rows: 5
 			spacing: dp(4)
             padding: dp(4)
+        BaseButton:
+            text: "Show Symbols Legend"
+            on_release: app.show_symbols_legend()
         BaseButton:
             text: "Back to Start"
             on_release: app.go_to("start", "right", app.clear_game)

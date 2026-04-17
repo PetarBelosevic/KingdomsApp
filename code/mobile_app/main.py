@@ -11,25 +11,23 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.resources import resource_find
 from kivy.storage.jsonstore import JsonStore
-from kivy.clock import Clock
 from kivy.utils import platform
-from kivy.properties import StringProperty, BooleanProperty
+from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 from kivy.graphics.texture import Texture
 from kivy.uix.screenmanager import Screen, ScreenManager, SlideTransition
-from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
-
-from image_processing import rectify_image, BoardModel
-from game_logic import calculate_player_points
-from camera import OneShotCamera, CAMERA_REQUEST_CODE # !
-from gallery import GalleryPhotoPicker, GALLERY_REQUEST_CODE # !
+from kivy.uix.image import Image
 
 try:
-    from android.permissions import request_permissions, Permission, check_permission
+    from android.permissions import request_permissions, Permission
     from android.activity import bind as activity_bind
-    from jnius import autoclass, cast
+
+    from image_processing import rectify_image, BoardModel
+    from game_logic import calculate_player_points
+    from camera import OneShotCamera, CAMERA_REQUEST_CODE
+    from gallery import GalleryPhotoPicker, GALLERY_REQUEST_CODE 
     ANDROID = True
 except ImportError:
     ANDROID = False
@@ -62,10 +60,48 @@ class GameInfoPopup(Popup):
 class WinnerPopup(Popup):
     pass
 
+class SymbolsLegendPopup(Popup):
+    pass
+
 # --------------------------------------------------
 
 class BaseLabel(Label):
     pass
+
+
+class RotatableImage(Image):
+    angle = NumericProperty(0)
+    rotation_scale = NumericProperty(1.0)
+
+    def on_kv_post(self, base_widget):
+        self._update_rotation_scale()
+
+    def on_angle(self, instance, value):
+        self._update_rotation_scale()
+
+    def on_size(self, instance, value):
+        self._update_rotation_scale()
+
+    def on_texture(self, instance, value):
+        self._update_rotation_scale()
+
+    def _update_rotation_scale(self):
+        if self.angle % 180 == 0:
+            self.rotation_scale = 1.0
+            return
+
+        image_w, image_h = self.norm_image_size
+        if image_w <= 0 or image_h <= 0 or self.width <= 0 or self.height <= 0:
+            self.rotation_scale = 1.0
+            return
+
+        self.rotation_scale = min(self.width / image_h, self.height / image_w)
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self.angle = (self.angle + 90) % 180
+            return True
+        return super().on_touch_down(touch)
 
 # --------------------------------------------------
 
@@ -162,6 +198,7 @@ class KingdomsApp(App):
     winner = StringProperty("")
     back_button_text = StringProperty("Back")
     android = BooleanProperty(False)
+    rotation_angle = NumericProperty(0)
 
     red_total = StringProperty("")
     red_last = StringProperty("")
@@ -182,15 +219,15 @@ class KingdomsApp(App):
         self.app_dir = os.path.dirname(os.path.abspath(__file__))
         self.game_data = JsonStore(os.path.join(self.app_dir, "game_data.json"))
         models_dir = os.path.join(self.app_dir, "onnx_models")
-        self.board_model_processing_unit = BoardModel(path_to_models=models_dir)
         self.image = None
         self.board_model = None
         self.sorted_photos = []
         self._selected_photo_path = None
         
         if ANDROID:
-            self.camera = OneShotCamera(self) # !
-            self.gallery = GalleryPhotoPicker(self) # !
+            self.camera = OneShotCamera(self)
+            self.gallery = GalleryPhotoPicker(self)
+            self.board_model_processing_unit = BoardModel(path_to_models=models_dir)
 
 
     def build(self):
@@ -362,6 +399,12 @@ class KingdomsApp(App):
             self.game_data.put("round", round=current_round+1)
         self.go_to("round_results", "left", self.prepare_results)
 
+
+    def show_symbols_legend(self):
+        """Shows the symbols legend popup with explanations of what each symbol means in the context of the game."""
+        popupWindow = SymbolsLegendPopup()
+        popupWindow.open() # show the popup
+    
     # --------------------------------------------------
     # results screen methods
 
@@ -392,10 +435,6 @@ class KingdomsApp(App):
         self.yellow_last = f"{last_scores['y']}"
         self.yellow_new = f"{new_scores['y']}"
         
-        # self.score = "\n".join(
-        #     f"{name:<6}: {total_scores[key]:>3} ({last_scores[key]:>3} + {new_scores[key]:>3})"
-        #     for name, key in score_rows
-        # )
         self.score = "\n".join(
             f"{name:<6}: {total_scores[key]:>4}"
             for name, key in score_rows

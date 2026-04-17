@@ -14,9 +14,7 @@ IZVORI:
 	https://groups.google.com/g/kivy-users/c/bjsG2j9bptI/m/-Oe_aGo0newJ - gallery intent
 
 TODO:
-	- game info text
-	- rotate detected board image?
-
+	buildozer android release
 
 from kivy.resources import resource_find
 model_path = resource_find("onnx_models/model1.onnx")

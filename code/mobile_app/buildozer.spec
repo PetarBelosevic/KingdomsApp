@@ -8,10 +8,9 @@ source.dir  = .
 source.include_exts = py,png,jpg,kv,atlas,json,onnx,data
 source.include_patterns = onnx_models/*
 
-version = 0.1
+version = 1.0
 
 requirements = python3,kivy,pyjnius,android,numpy,opencv,pillow
-# pip_packages = onnxruntime-lite==1.16.0
 android.gradle_dependencies = com.microsoft.onnxruntime:onnxruntime-android:1.22.0
 
 orientation = portrait
@@ -29,6 +28,6 @@ android.permissions = CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, MAN
 
 fullscreen = 0
 
-[buildozer]
-log_level = 2
-warn_on_root = 1
+# [buildozer]
+# log_level = 2
+# warn_on_root = 1
