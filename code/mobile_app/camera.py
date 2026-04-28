@@ -28,7 +28,7 @@ class OneShotCamera:
             request_permissions([Permission.CAMERA])
             return
         try:
-            self.camera._launch_camera() # !
+            self._launch_camera() # !
         except Exception:
             pass
 
@@ -72,7 +72,7 @@ class OneShotCamera:
         Activity = autoclass('android.app.Activity')
         if result_code != Activity.RESULT_OK:
             if request_code == CAMERA_REQUEST_CODE:
-                self.camera._cleanup_mediastore()
+                self._cleanup_mediastore()
             return
         try:
             self._load_photo() # !

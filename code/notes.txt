@@ -1,19 +1,44 @@
 IZVORI:
-	https://powergatesoftware.com/tech-blog/android-app-development-using-python/
-	https://www.youtube.com/watch?v=zAy7bqFUJLg
-	https://www.youtube.com/watch?v=yr7n0C2tspI
-	https://youtu.be/bMHK6NDVlCM?si=xbmur9tEc1fp73i0 - kivy tutorial
-	https://www.tutorialspoint.com/kivy/kivy-storage.html - kivy storage
-	https://stackoverflow.com/questions/77401316/why-am-i-getting-double-labels
-	https://dzone.com/articles/edge-ai-tensorflow-lite-vs-onnx-runtime-vs-pytorch
-	https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	https://www.youtube.com/watch?v=JZeaRTwk5hI
-	https://towardsdatascience.com/3-ways-to-convert-python-app-into-apk-77f4c9cd55af/
-	https://stackoverflow.com/questions/61728185/python-kivy-how-to-disable-enable-a-button
-	https://github.com/aicelen/Onnx-Kivy-Android
-	https://groups.google.com/g/kivy-users/c/bjsG2j9bptI/m/-Oe_aGo0newJ - gallery intent
+	Kivy/android development:
+		! dilema oko tehnologije za aplikaciju:			https://powergatesoftware.com/tech-blog/android-app-development-using-python/
+
+		! Code with Josh: 								https://www.youtube.com/watch?v=zAy7bqFUJLg
+		! ShawCode:										https://www.youtube.com/playlist?list=PLkkm3wcQHjT5PohqBMZrov8NUH6HOBFTA
+		! Tech With Tim: 								https://www.techwithtim.net/tutorials/python-module-walk-throughs/kivy-tutorial
+		! kivy storage (JSON): 							https://www.tutorialspoint.com/kivy/kivy-storage.htm
+		! BUG dupliciranje labela:						https://stackoverflow.com/questions/77401316/why-am-i-getting-double-labels
+		! disable button: 								https://stackoverflow.com/questions/61728185/python-kivy-how-to-disable-enable-a-button
+		! galerija na androidu: 						https://groups.google.com/g/kivy-users/c/bjsG2j9bptI/m/-Oe_aGo0newJ
+		! galerija s FIleChooserom, i permissioni:		https://stackoverflow.com/questions/60066288/select-images-from-gallery-python-kivy-for-android#:~:text=To%20select%20images%20from%20the%20gallery%20on,pick%20up%20and%20assets%20from%20phone%20storage
+		! Kivy dokumentacija: 							https://kivy.org/doc/stable/
+		! Kivy rotation: 								https://kivy.org/doc/stable/examples/gen__canvas__rotation__py.html
+		! android permissions: 							https://developer.android.com/reference/android/Manifest.permission
+
+	Modeli na mobitelu:
+		! tensorflow lite vs onnx vs pytorch mobile: 	https://dzone.com/articles/edge-ai-tensorflow-lite-vs-onnx-runtime-vs-pytorch
+		kick !!! pokreanje modela na androidu: 			https://www.quora.com/How-do-I-integrate-a-Python-trained-model-in-an-Android-app-and-if-possible-without-a-TensorFlow
+		! onnx model za kivy android: 					https://github.com/aicelen/Onnx-Kivy-Android - prouči detaljnije
+		! onnx explained:	 								https://www.youtube.com/watch?v=cZtXdMao7Ic
+
+	Buildozer:
+		! buildanje apk-a: 								https://towardsdatascience.com/3-ways-to-convert-python-app-into-apk-77f4c9cd55af/
+		! buildozer docker:								https://hub.docker.com/r/kivy/buildozer
+
+	odabir boja: 										https://www.tug.org/pracjourn/2007-4/walden/color.pdf
+	! pravila igre: 									https://images-cdn.fantasyflightgames.com/filer_public/78/09/7809aa35-0177-4721-930f-c9c85fc17d02/kn20_kingdoms_rulebook_sm2.pdf
+
+	Detekcija ploče:
+		kinezi za detekciju kartica
+
+	Modeli:
+
+	Augmentacija:
+	
+
+
 
 TODO:
+	20260310_165804.jpg
 	buildozer android release
 
 from kivy.resources import resource_find
