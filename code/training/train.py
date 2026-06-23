@@ -2,10 +2,8 @@ import sys
 import os
 import time
 import torch
-import numpy as np
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from PIL import Image
 from tensorboard import program
 import webbrowser
 
@@ -130,7 +128,7 @@ def train(model, train_loader, val_loader, optimizer, criterion, epochs, writer,
 
 
 if __name__ == "__main__":
-    config = load_configuration(CONF_FILE_PATH_TEMPLATE.format(model_name="castle_rank_model")) # TODO path argument?
+    config = load_configuration(CONF_FILE_PATH_TEMPLATE.format(model_name="special_card_model")) # TODO path argument?
     transform = get_transform(config.get("model"), config.get("normalize", False))
 
     train_dataset = ImageDataset(

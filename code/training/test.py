@@ -24,7 +24,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print(device) # !
 
-config = load_configuration(CONF_FILE_PATH_TEMPLATE.format(model_name="castle_color_model")) # TODO path argument?
+config = load_configuration(CONF_FILE_PATH_TEMPLATE.format(model_name="special_card_model")) # TODO path argument?
 model_name = config['model']
 normalize = config.get("normalize", False)
 
@@ -48,8 +48,8 @@ test_dataset = ImageDataset(
 test_loader = DataLoader(test_dataset, batch_size=config["batch_size"], shuffle=False)
 
 # Load model
-run_num = 6 # get_next_run_num(model_name)-1
-epoch = 49 # config["epochs"]-1 # !
+run_num = 5 # get_next_run_num(model_name)-1
+epoch = 47 # config["epochs"]-1 # !
 model_params = torch.load(SAVED_MODEL_PATH_TEMPLATE.format(model_name=model_name, run_num=run_num, epoch=epoch), weights_only=True, map_location=device)
 model = get_model(model_name)
 model.load_state_dict(model_params)

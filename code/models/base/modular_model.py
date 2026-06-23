@@ -1,5 +1,4 @@
 from torch import nn
-from torch.nn import functional as F
 
 from models.base.conv_feature_extraction import ConvFeatureExtraction
 from models.base.linear_cls_head import LinearClsHead

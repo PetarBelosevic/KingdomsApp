@@ -7,13 +7,6 @@ project_root = os.path.dirname(current_dir) # diplomski directory
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-# Example: replace with your actual model classes
-from models.card_castle_model import CardCastleModel
-from models.castle_color_model import CastleColorModel
-from models.castle_rank_model import CastleRankModel
-from models.number_card_model import NumberCardModel
-from models.number_special_card_model import NumberSpecialCardModel
-from models.special_card_model import SpecialCardModel
 from training.utils import SAVED_MODEL_PATH_TEMPLATE, MODEL_NAMES, get_model
 
 EXPORT_DIR = "mobile_app/onnx_models"
@@ -22,11 +15,11 @@ os.makedirs(EXPORT_DIR, exist_ok=True)
 
 BEST_MODEL_RUN_EPOCH = {
     "card_castle_model": (15, 98),
-    "castle_color_model": (6, 42), # (6, 49)
+    "castle_color_model": (6, 49), # (6, 42), (6, 49)!
     "castle_rank_model": (39, 68),
     "number_special_card_model": (1, 17),
     "number_card_model": (2, 52),
-    "special_card_model": (4, 34) # (4, 46) (4, 48)
+    "special_card_model": (5, 47) # (4, 34), (4, 46), (4, 48)!, (5, 47)!!
 }
 
 

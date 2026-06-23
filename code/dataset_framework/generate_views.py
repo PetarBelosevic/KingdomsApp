@@ -1,17 +1,3 @@
-# load labels.json
-# load train/val/test splits
-
-# for each view_definition:
-#     create view directory
-#     for each split:
-#         for each image in split:
-#             cell_label = labels[image]
-
-#             if include_condition(cell_label):
-#                 ! projected_label = project_label(cell_label)
-#                 add image to view split
-#                 store projected_label
-
 import json
 import os
 
@@ -33,7 +19,7 @@ def project_cell_type(label) -> dict:
 def filter_only_castles(labels) -> dict:
     return filter_labels(lambda label: label["cell_type"] == "castle", labels)
 
-# ! remove
+# ! depricated, not used
 def project_castle_labels(label) -> dict:
     if label["cell_type"] != "castle":
         raise ValueError("Label is not a castle")

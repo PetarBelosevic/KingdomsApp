@@ -1,0 +1,75 @@
+This is BibTeX, Version 0.99d (TeX Live 2023)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: diplomski_rad.aux
+The style file: fer_IEEEtran_HR.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 150 items from 100.
+Database file #1: literatura.bib
+I was expecting a `,' or a `}'---line 26 of file literatura.bib
+ :   
+ :   organization = {YouTube}
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+I was expecting a `,' or a `}'---line 87 of file literatura.bib
+ :   
+ :   organization = {YouTube}
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+I was expecting a `,' or a `}'---line 96 of file literatura.bib
+ :   
+ :   organization = {YouTube}
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+I was expecting a `,' or a `}'---line 105 of file literatura.bib
+ :   
+ :   organization = {YouTube}
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for "bibid"
+You've used 23 entries,
+            4225 wiz_defined-function locations,
+            985 strings with 12296 characters,
+and the built_in function-call counts, 10375 in all, are:
+= -- 877
+> -- 118
+< -- 17
++ -- 62
+- -- 26
+* -- 352
+:= -- 1921
+add.period$ -- 68
+call.type$ -- 23
+change.case$ -- 43
+chr.to.int$ -- 36
+cite$ -- 23
+duplicate$ -- 767
+empty$ -- 928
+format.name$ -- 28
+if$ -- 2383
+int.to.chr$ -- 0
+int.to.str$ -- 23
+missing$ -- 186
+newline$ -- 140
+num.names$ -- 23
+pop$ -- 490
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 837
+stack$ -- 0
+substring$ -- 135
+swap$ -- 507
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 23
+warning$ -- 0
+while$ -- 29
+width$ -- 25
+write$ -- 279
+(There were 4 error messages)

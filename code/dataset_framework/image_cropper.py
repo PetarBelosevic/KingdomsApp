@@ -14,12 +14,13 @@ from board.grid_model import GridModel
 from variables import OG_BOARDS_DIR, RECTIFIED_BOARDS_DIR, CROP_DEST_DIR
 
 
-def process_board_image(image_name:str, save_results:bool=True) -> None:
+def process_board_image(image_name:str, save_results:bool=True, show_intermediate:bool=False) -> None:
     """
     Method takes an image of the board, detects it, rectifies it and crops the cells, optionally saving the cropped cells to disk.
     
     :param image_name: filename of the board image to process (should be located in OG_BOARDS_DIR)
     :param save_results: if True, save rectified board and cropped cells to CROP_DEST_DIR
+    :param show_intermediate: if True, display intermediate results
     """
     path = f"{OG_BOARDS_DIR}/{image_name}"
     # check of file exists
@@ -39,7 +40,7 @@ def process_board_image(image_name:str, save_results:bool=True) -> None:
     # new_dimensions = (fixed_width, int(img.shape[0] * aspect_ratio))
     # img = cv2.resize(img, new_dimensions)
 
-    corners = detect_board(img)
+    corners = detect_board(img, show_intermediate_results=show_intermediate)
     rectified = rectify_board(img, corners, save_path=f"{RECTIFIED_BOARDS_DIR}/rectified_{image_name}" if save_results else None)
 
     grid = GridModel(rows=5, cols=6, board_width=rectified.shape[1], board_height=rectified.shape[0])
@@ -64,7 +65,7 @@ def process_board_image(image_name:str, save_results:bool=True) -> None:
 
 
 
-def process_new_board_image(save_results:bool=False) -> None:
+def process_new_board_image(save_results:bool=False, show_intermediate:bool=False) -> None:
     # list all images from OG_BOARDS_DIR that don't have corresponding rectified version in RECTIFIED_BOARDS_DIR
     og_images = set(os.listdir(OG_BOARDS_DIR))
     rectified_images = set(os.listdir(RECTIFIED_BOARDS_DIR))
@@ -91,18 +92,18 @@ def process_new_board_image(save_results:bool=False) -> None:
         ind = int(input())
 
         image_name = list(images_to_process)[ind]
-        process_board_image(image_name, save_results=save_results)
+        process_board_image(image_name, save_results=save_results, show_intermediate=show_intermediate)
         images_to_process.remove(image_name)
 
 
-def iterate_all_images():
+def iterate_all_images(show_intermediate=False):
     images = set(os.listdir(OG_BOARDS_DIR))
     print(len(images))
 
     for image_name in images:
         print(f"Processing {image_name}...")
         try:
-            process_board_image(image_name, save_results=False)
+            process_board_image(image_name, save_results=False, show_intermediate=show_intermediate)
         except RuntimeError as e:
             print("Failed!")
             print(e)
@@ -118,7 +119,7 @@ def iterate_bad_images():
     for image_name in images:
         print(f"Processing {image_name}...")
         try:
-            process_board_image(image_name, save_results=False)
+            process_board_image(image_name, save_results=False, show_intermediate=False)
         except RuntimeError as e:
             print("Failed!")
 
@@ -164,7 +165,7 @@ if __name__ == "__main__":
     # image_name = "20260307_170045.jpg"
     # process_board_image(image_name, save_results=False)
 
-    # iterate_all_images()
+    # iterate_all_images(show_intermediate=False)
     # iterate_bad_images()
 
-    process_new_board_image(save_results=False)
+    process_new_board_image(save_results=False, show_intermediate=False)

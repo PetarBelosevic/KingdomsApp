@@ -449,7 +449,7 @@ def keep_longest_line_in_clusters(lines, angle_tol_deg=2.0, rho_tol_px=8.0) -> n
     return np.array(longest_per_cluster, dtype=np.int32)
 
 
-# ! remove
+# ! depricated, not used
 def group_parallel_and_perpendicular_lines(lines, angle_tol_deg=15.0) -> list[tuple[list[tuple[int, int, int, int]], float]]:
     # group lines that are parallel or perpendicular to each other, return list of groups with their total line length
     groups = []

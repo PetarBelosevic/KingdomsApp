@@ -24,7 +24,7 @@ from dataset_framework.variables import (
 from image_dataset import ImageDataset
 from utils import MODEL_VIEW_DICT, SAVED_MODEL_PATH_TEMPLATE, CONF_FILE_PATH_TEMPLATE
 from utils import load_configuration, get_transform, get_model
-
+from model_exporting import BEST_MODEL_RUN_EPOCH
 
 def validate_onnx_export(model_name="card_castle_model", run_num=15, epoch=98, dataset_split="test"):
     """
@@ -174,14 +174,7 @@ def validate_onnx_export(model_name="card_castle_model", run_num=15, epoch=98, d
 
 if __name__ == "__main__":
     # Test all models
-    MODELS_TO_TEST = {
-        "card_castle_model": (15, 98),
-        "number_special_card_model": (1, 17),
-        "number_card_model": (2, 52),
-        "special_card_model": (4, 34),
-        "castle_color_model": (6, 42),
-        "castle_rank_model": (39, 68)
-    }
+    MODELS_TO_TEST = BEST_MODEL_RUN_EPOCH
     
     splits_to_test = ["train", "validation", "test"]
     results = {}
