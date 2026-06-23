@@ -214,11 +214,12 @@ def detect_board(image):
         raise RuntimeError("Board not found")
     
     # ! display detected lines for debugging
-    # line_img = image.copy()
-    # for line in lines:
-    #     x1, y1, x2, y2 = line[0]
-    #     cv2.line(line_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    # cv2.imshow("Detected Lines 111", line_img)
+    line_img = image.copy()
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        cv2.line(line_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    cv2.imshow("Detected Lines original", line_img)
+    # !
 
     lines = merge_similar_hough_lines(lines, angle_tol_deg=1.5, rho_tol_px=2.2)
     lines = keep_longest_line_in_clusters(lines, angle_tol_deg=3.0, rho_tol_px=13.0)
@@ -231,27 +232,27 @@ def detect_board(image):
     intersectons = find_intersections(longest_lines[:4], img_dim=image.shape[:2][::-1])
 
     # ! display edges and closed edges for debugging
-    # cv2.imshow("Edges", edges)
-    # cv2.imshow("Closed Edges", closed_edges)
+    cv2.imshow("Edges", edges)
+    cv2.imshow("Closed Edges", closed_edges)
     # # ! display contour mask for debugging
-    # cv2.imshow("Contour Mask", mask)
+    cv2.imshow("Contour Mask", mask)
     # # ! display detected lines for debugging
-    # line_img = image.copy()
-    # for line in lines:
-    #     x1, y1, x2, y2 = line[0]
-    #     cv2.line(line_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    # cv2.imshow("Detected Lines", line_img)
+    line_img = image.copy()
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        cv2.line(line_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    cv2.imshow("Detected Lines", line_img)
     # # ! display 4 longest lines for debugging
-    # line_img = image.copy()
+    line_img = image.copy()
     # for line in longest_lines[:4]:
     #     x1, y1, x2, y2 = line[0]
     #     cv2.line(line_img, (x1, y1), (x2, y2), (0, 0, 255), 2)
     # # ! display intersection points for debugging
-    # for inter in intersectons:
-    #     x, y = int(inter[0]), int(inter[1])
-    #     cv2.circle(line_img, (x, y), 4, (255, 0, 255), 2)
-    # cv2.imshow("Longest Lines & Intersections", line_img)
-    # cv2.waitKey(0)
+    for inter in intersectons:
+        x, y = int(inter[0]), int(inter[1])
+        cv2.circle(line_img, (x, y), 4, (255, 0, 255), 2)
+    cv2.imshow("Longest Lines & Intersections", line_img)
+    cv2.waitKey(0)
 
     intersectons = np.array(intersectons)
     intersectons = (intersectons / scale).astype(np.float32)

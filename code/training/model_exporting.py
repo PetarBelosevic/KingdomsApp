@@ -22,11 +22,11 @@ os.makedirs(EXPORT_DIR, exist_ok=True)
 
 BEST_MODEL_RUN_EPOCH = {
     "card_castle_model": (15, 98),
-    "castle_color_model": (6, 42),
+    "castle_color_model": (6, 42), # (6, 49)
     "castle_rank_model": (39, 68),
     "number_special_card_model": (1, 17),
     "number_card_model": (2, 52),
-    "special_card_model": (4, 34) # (4, 46)
+    "special_card_model": (4, 34) # (4, 46) (4, 48)
 }
 
 

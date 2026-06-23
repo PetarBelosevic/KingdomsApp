@@ -18,7 +18,7 @@ IZVORI:
 		! tensorflow lite vs onnx vs pytorch mobile: 	https://dzone.com/articles/edge-ai-tensorflow-lite-vs-onnx-runtime-vs-pytorch
 		kick !!! pokreanje modela na androidu: 			https://www.quora.com/How-do-I-integrate-a-Python-trained-model-in-an-Android-app-and-if-possible-without-a-TensorFlow
 		! onnx model za kivy android: 					https://github.com/aicelen/Onnx-Kivy-Android - prouči detaljnije
-		! onnx explained:	 								https://www.youtube.com/watch?v=cZtXdMao7Ic
+		! onnx explained:	 							https://www.youtube.com/watch?v=cZtXdMao7Ic
 
 	Buildozer:
 		! buildanje apk-a: 								https://towardsdatascience.com/3-ways-to-convert-python-app-into-apk-77f4c9cd55af/

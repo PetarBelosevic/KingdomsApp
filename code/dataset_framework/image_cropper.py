@@ -160,10 +160,11 @@ if __name__ == "__main__":
     # 20260310_222953.jpg
     # 20260307_165224.jpg
 
-    image_name = "20260307_165224.jpg"
-    process_board_image(image_name, save_results=False)
+    # image_name = "20260307_165224.jpg"
+    # image_name = "20260307_170045.jpg"
+    # process_board_image(image_name, save_results=False)
 
     # iterate_all_images()
     # iterate_bad_images()
 
-    # process_new_board_image(save_results=False)
+    process_new_board_image(save_results=False)

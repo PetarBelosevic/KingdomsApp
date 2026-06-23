@@ -1,6 +1,7 @@
 model: number_card_model
 batch_size: 32
 lr: 0.0002
+weight_decay: 0.0
 epochs: 60
 num_classes: 12
 augments_per_image: 25
