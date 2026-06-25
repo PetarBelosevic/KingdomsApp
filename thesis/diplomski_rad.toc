@@ -26,11 +26,11 @@
 \contentsline {subsection}{\numberline {4.4.2.}Treniranje modela}{32}{subsection.4.4.2}%
 \contentsline {subsection}{\numberline {4.4.3.}Odabir hipoteza i vrednovanje modela}{32}{subsection.4.4.3}%
 \contentsline {section}{\numberline {4.5.}Mobilna aplikacija za Android}{34}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1.}Programski jezik i radni okvir za razvoj aplikacije}{37}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.1.}Programski jezik i radni okvir za razvoj aplikacije}{35}{subsection.4.5.1}%
 \contentsline {subsection}{\numberline {4.5.2.}Radni okvir za korištenje klasifikacijskih modela}{37}{subsection.4.5.2}%
 \contentsline {subsection}{\numberline {4.5.3.}Korištenje kamere i pristup galeriji mobitela}{38}{subsection.4.5.3}%
-\contentsline {subsection}{\numberline {4.5.4.}Buildozer}{39}{subsection.4.5.4}%
-\contentsline {subsection}{\numberline {4.5.5.}Rezultantna aplikacija}{40}{subsection.4.5.5}%
+\contentsline {subsection}{\numberline {4.5.4.}Alat \textit {Buildozer}}{39}{subsection.4.5.4}%
+\contentsline {subsection}{\numberline {4.5.5.}Rezultantna aplikacija}{39}{subsection.4.5.5}%
 \contentsline {chapter}{\numberline {5.}Zaključak}{41}{chapter.5}%
 \contentsline {chapter}{Literatura}{43}{chapter*.22}%
 \babel@toc {croatian}{}\relax 
