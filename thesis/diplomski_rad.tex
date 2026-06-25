@@ -16,10 +16,10 @@
 \title{Mobile application for Kingdomms board game}
 
 % Naslov na hrvatskom jeziku / Title in Croatian
-\naslov{Mobilna aplikacija za društvenu igru Kraljevstva}
+\naslov{Mobilna aplikacija za analizu stanja igre u društvenoj igri Kraljevstva}
 
 % Broj rada / Thesis number
-\brojrada{1234}
+\brojrada{1642}
 
 % Autor / Author
 \author{Petar Belošević}
@@ -49,7 +49,7 @@
 
 % Zadatak se ubacuje iz vanjske datoteke / Thesis assignment is included from external file
 % Upiši ime PDF datoteke preuzete s FERWeb-a / Enter the filename of the PDF downloaded from FERWeb
-\zadatak{filename.pdf}
+\zadatak{hr_0036538383_94.pdf}
 
 
 %--- ZAHVALE / ACKNOWLEDGMENT --------------------------------------------------
@@ -678,9 +678,9 @@
 \begin{sazetak}
 	Ovaj rad opisuje razvoj sustava za automatsko bodovanje društvene igre Kraljevstva korištenjem metoda računalnog vida i dubokog učenja. Cilj rada bio je omogućiti jednostavan prijenos stanja igre s fizičke igraće ploče u digitalni oblik te automatizirati proces izračuna bodova kroz Android mobilnu aplikaciju.
 	
-	Razvijen je algoritam za detekciju uglova igraće ploče na fotografiji, perspektivnu transformaciju slike te izdvajanje pojedinačnih polja ploče. Za prepoznavanje elemenata igre izrađen je skup podataka dobiven fotografiranjem stvarnih konfiguracija ploče te je dodatno pojačan metodama augmentacije podataka radi povećanja robusnosti modela. Implementirano je više konvolucijskih neuronskih mreža koje kaskadnim odlučivanjem klasificiraju različite vrste objekata na ploči, uključujući prazna polja, dvorce, kartice s brojevima i posebne kartice.
+	Razvijen je algoritam za detekciju uglova igraće ploče na fotografiji, perspektivnu transformaciju slike te izdvajanje pojedinačnih polja ploče. Za prepoznavanje elemenata igre izrađen je skup podataka dobiven fotografiranjem stvarnih konfiguracija ploče te je dodatno pojačan metodama augmentacije podataka. Implementirano je više konvolucijskih neuronskih mreža koje kaskadnim odlučivanjem klasificiraju različite vrste objekata na ploči, uključujući prazna polja, dvorce, kartice s brojevima i posebne kartice.
 	
-	Uz sustav računalnog vida razvijen je i programski model pravila igre koji omogućuje automatski izračun bodova na temelju prepoznatog stanja ploče. Cjelokupna funkcionalnost integrirana je u Android mobilnu aplikaciju koja sav izračun obavlja lokalno na uređaju bez potrebe za vanjskim poslužiteljima. Rezultati pokazuju da razvijeni sustav uspješno prepoznaje elemente igre i omogućuje učinkovitu automatizaciju procesa bodovanja.
+	Uz sustav računalnog vida razvijen je i programski model pravila igre koji omogućuje automatski izračun bodova na temelju prepoznatog stanja ploče. Cjelokupna funkcionalnost integrirana je u Android mobilnu aplikaciju koja sav izračun obavlja lokalno na uređaju. Rezultati pokazuju da razvijeni sustav uspješno prepoznaje elemente igre i omogućuje učinkovitu automatizaciju procesa bodovanja.
 
 \end{sazetak}
 
@@ -693,9 +693,9 @@
 \begin{abstract}
 	This thesis presents the development of an automated scoring system for the board game Kingdoms using computer vision and deep learning techniques. The objective was to enable a simple transfer of game state information from a physical game board into a digital representation and to automate the score calculation process through an Android mobile application.
 	
-	A board detection algorithm was developed to locate the corners of the game board in a photograph, perform perspective transformation, and extract individual board positions. A dataset was created by photographing real game configurations, while various data augmentation techniques were applied to improve model robustness. Several convolutional neural networks were implemented, using a cascading decision-making process to classify different types of objects on the board, including empty cells, castles, numbered cards, and special cards.
+	A board detection algorithm was developed to locate the corners of the game board in a photograph, perform perspective transformation, and extract individual board positions. A dataset was created by photographing real game configurations, while various data augmentation techniques were applied. Several convolutional neural networks were implemented, using a cascading decision-making process to classify different types of objects on the board, including empty cells, castles, numbered cards, and special cards.
 	
-	In addition to the computer vision subsystem, an implementation of the game rules was developed to calculate scores based on the board state. The complete solution was integrated into an Android application that performs all computations locally without relying on external servers. The results demonstrate that the proposed system successfully recognizes game elements and provides effective automation of the scoring process.
+	In addition to the computer vision subsystem, an implementation of the game rules was developed to calculate scores based on the board state. The complete solution was integrated into an Android application that performs all computations locally. The results demonstrate that the proposed system successfully recognizes game elements and provides effective automation of the scoring process.
 
 \end{abstract}
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.10.23)  25 JUN 2026 16:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.10.23)  25 JUN 2026 23:54
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -886,9 +886,38 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {c:/texlive/2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/texlive/2023/
-texmf-dist/fonts/enc/dvips/opensans/a_jg4h6q.enc}] [2
-
-{c:/texlive/2023/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-t1.enc}]
+texmf-dist/fonts/enc/dvips/opensans/a_jg4h6q.enc}]
+<hr_0036538383_94.pdf, id=177, 598.235pt x 845.1575pt>
+File: hr_0036538383_94.pdf Graphic file (type pdf)
+<use hr_0036538383_94.pdf>
+Package pdftex.def Info: hr_0036538383_94.pdf  used on input line 52.
+(pdftex.def)             Requested size: 598.23354pt x 845.15544pt.
+File: hr_0036538383_94.pdf Graphic file (type pdf)
+<use hr_0036538383_94.pdf>
+Package pdftex.def Info: hr_0036538383_94.pdf  used on input line 52.
+(pdftex.def)             Requested size: 598.23354pt x 845.15544pt.
+<hr_0036538383_94.pdf, id=180, page=1, 598.235pt x 845.1575pt>
+File: hr_0036538383_94.pdf Graphic file (type pdf)
+<use hr_0036538383_94.pdf, page 1>
+Package pdftex.def Info: hr_0036538383_94.pdf , page1 used on input line 52.
+(pdftex.def)             Requested size: 598.23354pt x 845.15544pt.
+File: hr_0036538383_94.pdf Graphic file (type pdf)
+<use hr_0036538383_94.pdf, page 1>
+Package pdftex.def Info: hr_0036538383_94.pdf , page1 used on input line 52.
+(pdftex.def)             Requested size: 597.7406pt x 844.45905pt.
+File: hr_0036538383_94.pdf Graphic file (type pdf)
+<use hr_0036538383_94.pdf, page 1>
+Package pdftex.def Info: hr_0036538383_94.pdf , page1 used on input line 52.
+(pdftex.def)             Requested size: 597.7406pt x 844.45905pt.
+File: hr_0036538383_94.pdf Graphic file (type pdf)
+<use hr_0036538383_94.pdf, page 1>
+Package pdftex.def Info: hr_0036538383_94.pdf , page1 used on input line 52.
+(pdftex.def)             Requested size: 597.7406pt x 844.45905pt.
+File: hr_0036538383_94.pdf Graphic file (type pdf)
+<use hr_0036538383_94.pdf, page 1>
+Package pdftex.def Info: hr_0036538383_94.pdf , page1 used on input line 52.
+(pdftex.def)             Requested size: 597.7406pt x 844.45905pt.
+ [2 <./hr_0036538383_94.pdf>]
 LaTeX Font Info:    Font shape `T1/stix2/m/sl' in size <12> not available
 (Font)              Font shape `T1/stix2/m/it' tried instead on input line 57.
  [3
@@ -900,7 +929,8 @@ e
 e 66.
 LaTeX Font Info:    Font shape `T1/opensans-TLF/b/n' will be
 (Font)              scaled to size 18.0pt on input line 66.
- (./diplomski_rad.toc
+
+(./diplomski_rad.toc
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
 been already used, duplicate ignored
 <to be read again> 
@@ -909,7 +939,7 @@ l.28 ...na aplikacija za Android}{34}{section.4.5}
                                                   % [1
 
 
-])
+{c:/texlive/2023/texmf-dist/fonts/enc/dvips/stix2-type1/stix2-t1.enc}])
 \tf@toc=\write4
 \openout4 = `diplomski_rad.toc'.
 
@@ -941,7 +971,7 @@ Poglavlje 2..
 
 ]
 Poglavlje 3..
-<figures/igraca_poca.jpg, id=266, 4095.3pt x 3071.475pt>
+<figures/igraca_poca.jpg, id=285, 4095.3pt x 3071.475pt>
 File: figures/igraca_poca.jpg Graphic file (type jpg)
 <use figures/igraca_poca.jpg>
 Package pdftex.def Info: figures/igraca_poca.jpg  used on input line 125.
@@ -952,7 +982,7 @@ e
 e 130.
 LaTeX Font Info:    Font shape `T1/opensans-TLF/b/n' will be
 (Font)              scaled to size 16.0pt on input line 130.
-<figures/elementi_igre.jpg, id=268, 4095.3pt x 3071.475pt>
+<figures/elementi_igre.jpg, id=287, 4095.3pt x 3071.475pt>
 File: figures/elementi_igre.jpg Graphic file (type jpg)
 <use figures/elementi_igre.jpg>
 Package pdftex.def Info: figures/elementi_igre.jpg  used on input line 135.
@@ -971,7 +1001,7 @@ Overfull \hbox (6.77394pt too wide) in paragraph at lines 152--153
 
 pdfTeX warning: pdflatex.exe (file ./figures/dijagram1.drawio.pdf): PDF inclusi
 on: found PDF version <1.7>, but at most version <1.5> allowed
-<figures/dijagram1.drawio.pdf, id=290, 277.035pt x 424.4658pt>
+<figures/dijagram1.drawio.pdf, id=309, 277.035pt x 424.4658pt>
 File: figures/dijagram1.drawio.pdf Graphic file (type pdf)
 <use figures/dijagram1.drawio.pdf>
 Package pdftex.def Info: figures/dijagram1.drawio.pdf  used on input line 156.
@@ -982,62 +1012,62 @@ Package pdftex.def Info: figures/dijagram1.drawio.pdf  used on input line 156.
 
 pdfTeX warning: pdflatex.exe (file ./figures/dijagram2.drawio.pdf): PDF inclusi
 on: found PDF version <1.7>, but at most version <1.5> allowed
-<figures/dijagram2.drawio.pdf, id=311, 277.035pt x 475.7775pt>
+<figures/dijagram2.drawio.pdf, id=331, 277.035pt x 475.7775pt>
 File: figures/dijagram2.drawio.pdf Graphic file (type pdf)
 <use figures/dijagram2.drawio.pdf>
 Package pdftex.def Info: figures/dijagram2.drawio.pdf  used on input line 175.
 (pdftex.def)             Requested size: 282.25107pt x 484.73486pt.
 [12 <./figures/dijagram2.drawio.pdf>]
-<figures/canny.png, id=328, 599.23875pt x 448.074pt>
+<figures/canny.png, id=347, 599.23875pt x 448.074pt>
 File: figures/canny.png Graphic file (type png)
 <use figures/canny.png>
 Package pdftex.def Info: figures/canny.png  used on input line 188.
 (pdftex.def)             Requested size: 441.01773pt x 329.77141pt.
  [13 <./figures/canny.png>]
-<figures/morfoloske_transformacije.png, id=343, 599.23875pt x 448.074pt>
+<figures/morfoloske_transformacije.png, id=362, 599.23875pt x 448.074pt>
 File: figures/morfoloske_transformacije.png Graphic file (type png)
 <use figures/morfoloske_transformacije.png>
 Package pdftex.def Info: figures/morfoloske_transformacije.png  used on input l
 ine 197.
 (pdftex.def)             Requested size: 441.01773pt x 329.77141pt.
-<figures/kontura.png, id=348, 599.23875pt x 448.074pt>
+<figures/kontura.png, id=367, 599.23875pt x 448.074pt>
 File: figures/kontura.png Graphic file (type png)
 <use figures/kontura.png>
 Package pdftex.def Info: figures/kontura.png  used on input line 208.
 (pdftex.def)             Requested size: 441.01773pt x 329.77141pt.
  [14 <./figures/morfoloske_transformacije.png>]
-<figures/Hough.png, id=360, 599.23875pt x 448.074pt>
+<figures/Hough.png, id=379, 599.23875pt x 448.074pt>
 File: figures/Hough.png Graphic file (type png)
 <use figures/Hough.png>
 Package pdftex.def Info: figures/Hough.png  used on input line 217.
 (pdftex.def)             Requested size: 441.01773pt x 329.77141pt.
  [15 <./figures/kontura.png>] [16 <./figures/Hough.png>]
-<figures/Hough_clustered.png, id=377, 599.23875pt x 448.074pt>
+<figures/Hough_clustered.png, id=396, 599.23875pt x 448.074pt>
 File: figures/Hough_clustered.png Graphic file (type png)
 <use figures/Hough_clustered.png>
 Package pdftex.def Info: figures/Hough_clustered.png  used on input line 232.
 (pdftex.def)             Requested size: 441.01773pt x 329.77141pt.
-<figures/uglovi.png, id=381, 599.23875pt x 448.074pt>
+<figures/uglovi.png, id=400, 599.23875pt x 448.074pt>
 File: figures/uglovi.png Graphic file (type png)
 <use figures/uglovi.png>
 Package pdftex.def Info: figures/uglovi.png  used on input line 243.
 (pdftex.def)             Requested size: 441.01773pt x 329.77141pt.
  [17 <./figures/Hough_clustered.png>]
-<figures/ispravljena_ploca.jpg, id=391, 1003.75pt x 501.875pt>
+<figures/ispravljena_ploca.jpg, id=410, 1003.75pt x 501.875pt>
 File: figures/ispravljena_ploca.jpg Graphic file (type jpg)
 <use figures/ispravljena_ploca.jpg>
 Package pdftex.def Info: figures/ispravljena_ploca.jpg  used on input line 254.
 
 (pdftex.def)             Requested size: 441.01773pt x 220.5117pt.
  [18 <./figures/uglovi.png>]
-<figures/resetka.png, id=400, 749.199pt x 373.395pt>
+<figures/resetka.png, id=419, 749.199pt x 373.395pt>
 File: figures/resetka.png Graphic file (type png)
 <use figures/resetka.png>
 Package pdftex.def Info: figures/resetka.png  used on input line 266.
 (pdftex.def)             Requested size: 441.01773pt x 219.79976pt.
 
 [19 <./figures/ispravljena_ploca.jpg>] [20 <./figures/resetka.png>]
-<figures/labeliranje_aplikacija.png, id=414, 603.4545pt x 551.05875pt>
+<figures/labeliranje_aplikacija.png, id=433, 603.4545pt x 551.05875pt>
 File: figures/labeliranje_aplikacija.png Graphic file (type png)
 <use figures/labeliranje_aplikacija.png>
 Package pdftex.def Info: figures/labeliranje_aplikacija.png  used on input line
@@ -1045,13 +1075,13 @@ Package pdftex.def Info: figures/labeliranje_aplikacija.png  used on input line
 (pdftex.def)             Requested size: 441.01773pt x 402.732pt.
  [21]
 [22 <./figures/labeliranje_aplikacija.png>] [23]
-<figures/augmentacije_odvojeno.png, id=434, 353.52075pt x 263.7855pt>
+<figures/augmentacije_odvojeno.png, id=453, 353.52075pt x 263.7855pt>
 File: figures/augmentacije_odvojeno.png Graphic file (type png)
 <use figures/augmentacije_odvojeno.png>
 Package pdftex.def Info: figures/augmentacije_odvojeno.png  used on input line 
 342.
 (pdftex.def)             Requested size: 264.61333pt x 197.45625pt.
-<figures/augmentacije_nasumicno.png, id=435, 529.98pt x 528.7755pt>
+<figures/augmentacije_nasumicno.png, id=454, 529.98pt x 528.7755pt>
 File: figures/augmentacije_nasumicno.png Graphic file (type png)
 <use figures/augmentacije_nasumicno.png>
 Package pdftex.def Info: figures/augmentacije_nasumicno.png  used on input line
@@ -1079,7 +1109,7 @@ c}] [28] [29] [30]
 
 pdfTeX warning: pdflatex.exe (file ./figures/konv_blok2.drawio.pdf): PDF inclus
 ion: found PDF version <1.7>, but at most version <1.5> allowed
-<figures/konv_blok2.drawio.pdf, id=491, 174.6525pt x 355.3275pt>
+<figures/konv_blok2.drawio.pdf, id=510, 174.6525pt x 355.3275pt>
 File: figures/konv_blok2.drawio.pdf Graphic file (type pdf)
 <use figures/konv_blok2.drawio.pdf>
 Package pdftex.def Info: figures/konv_blok2.drawio.pdf  used on input line 419.
@@ -1089,7 +1119,7 @@ Package pdftex.def Info: figures/konv_blok2.drawio.pdf  used on input line 419.
 
 pdfTeX warning: pdflatex.exe (file ./figures/lin_blok1.drawio.pdf): PDF inclusi
 on: found PDF version <1.7>, but at most version <1.5> allowed
-<figures/lin_blok1.drawio.pdf, id=492, 174.6525pt x 270.0489pt>
+<figures/lin_blok1.drawio.pdf, id=511, 174.6525pt x 270.0489pt>
 File: figures/lin_blok1.drawio.pdf Graphic file (type pdf)
 <use figures/lin_blok1.drawio.pdf>
 Package pdftex.def Info: figures/lin_blok1.drawio.pdf  used on input line 425.
@@ -1101,7 +1131,7 @@ dok se za op-ti-mi-za-ciju ko-risti Adam
  []
 
 [32] [33] [34]
-<figures/app_main.jpg, id=554, 813.0375pt x 1588.43437pt>
+<figures/app_main.jpg, id=573, 813.0375pt x 1588.43437pt>
 File: figures/app_main.jpg Graphic file (type jpg)
 <use figures/app_main.jpg>
 Package pdftex.def Info: figures/app_main.jpg  used on input line 562.
@@ -1111,22 +1141,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 563--563
 []\T1/stix2/b/n/10 (a) |\T1/stix2/m/n/10 Po-£etni zas-lon An-droid
  []
 
-<figures/photo_menu.jpg, id=555, 813.0375pt x 1588.43437pt>
+<figures/photo_menu.jpg, id=574, 813.0375pt x 1588.43437pt>
 File: figures/photo_menu.jpg Graphic file (type jpg)
 <use figures/photo_menu.jpg>
 Package pdftex.def Info: figures/photo_menu.jpg  used on input line 568.
 (pdftex.def)             Requested size: 132.30666pt x 258.46896pt.
-<figures/detected_board.jpg, id=556, 813.0375pt x 1588.43437pt>
+<figures/detected_board.jpg, id=575, 813.0375pt x 1588.43437pt>
 File: figures/detected_board.jpg Graphic file (type jpg)
 <use figures/detected_board.jpg>
 Package pdftex.def Info: figures/detected_board.jpg  used on input line 574.
 (pdftex.def)             Requested size: 132.30666pt x 258.46896pt.
-<figures/board_model.jpg, id=557, 813.0375pt x 1588.43437pt>
+<figures/board_model.jpg, id=576, 813.0375pt x 1588.43437pt>
 File: figures/board_model.jpg Graphic file (type jpg)
 <use figures/board_model.jpg>
 Package pdftex.def Info: figures/board_model.jpg  used on input line 582.
 (pdftex.def)             Requested size: 132.30666pt x 258.46896pt.
-<figures/player_scores.jpg, id=558, 813.0375pt x 1588.43437pt>
+<figures/player_scores.jpg, id=577, 813.0375pt x 1588.43437pt>
 File: figures/player_scores.jpg Graphic file (type jpg)
 <use figures/player_scores.jpg>
 Package pdftex.def Info: figures/player_scores.jpg  used on input line 588.
@@ -1318,6 +1348,10 @@ ls1stix2sf.fd    2018/04/02 v2.0.0-latex stix2 sans-serif LS1 font definitions
 ls2stix2tt.fd    2018/04/02 v2.0.0-latex stix2 typewriter LS2 font definitions
     umsa.fd    2013/01/14 v3.01 AMS symbols A
     umsb.fd    2013/01/14 v3.01 AMS symbols B
+hr_0036538383_94.pdf    Graphic file (type pdf)
+hr_0036538383_94.pdf    Graphic file (type pdf)
+hr_0036538383_94.pdf    Graphic file (type pdf)
+hr_0036538383_94.pdf    Graphic file (type pdf)
 ts1stix2.fd    2018/04/02 v2.0.0-latex stix2 TS1 font definitions
 figures/igraca_poca.jpg
 figures/elementi_igre.jpg
@@ -1348,13 +1382,13 @@ Package rerunfilecheck Info: File `diplomski_rad.out' has not changed.
 (rerunfilecheck)             Checksum: 2F40BD6FCD4A1FEFD6F8DF3ACDE3E45A;7462.
  ) 
 Here is how much of TeX's memory you used:
- 19606 strings out of 474503
- 307684 string characters out of 5756704
+ 19619 strings out of 474503
+ 308092 string characters out of 5756704
  1945043 words of memory out of 5000000
- 41103 multiletter control sequences out of 15000+600000
+ 41115 multiletter control sequences out of 15000+600000
  667587 words of font info for 144 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 87i,16n,131p,1731b,738s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 87i,17n,131p,1731b,738s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2023/texmf-dist/fonts/type1/ascender/opensans/OpenSans-Bold.pfb><
 c:/texlive/2023/texmf-dist/fonts/type1/ascender/opensans/OpenSans-BoldItalic.pf
 b><c:/texlive/2023/texmf-dist/fonts/type1/ascender/opensans/OpenSans-Regular.pf
@@ -1362,10 +1396,10 @@ b><c:/texlive/2023/texmf-dist/fonts/type1/public/stix2-type1/STIX2Math.pfb><c:/
 texlive/2023/texmf-dist/fonts/type1/public/stix2-type1/STIX2Text-Bold.pfb><c:/t
 exlive/2023/texmf-dist/fonts/type1/public/stix2-type1/STIX2Text-Italic.pfb><c:/
 texlive/2023/texmf-dist/fonts/type1/public/stix2-type1/STIX2Text-Regular.pfb>
-Output written on diplomski_rad.pdf (55 pages, 13542282 bytes).
+Output written on diplomski_rad.pdf (55 pages, 13554771 bytes).
 PDF statistics:
- 793 PDF objects out of 1000 (max. 8388607)
- 671 compressed objects within 7 object streams
+ 812 PDF objects out of 1000 (max. 8388607)
+ 682 compressed objects within 7 object streams
  138 named destinations out of 1000 (max. 500000)
- 447 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 467 words of extra memory for PDF output out of 10000 (max. 10000000)
 
