@@ -30,10 +30,9 @@ I was expecting a `,' or a `}'---line 105 of file literatura.bib
  :   organization = {YouTube}
 (Error may have been on previous line)
 I'm skipping whatever remains of this entry
-Warning--I didn't find a database entry for "bibid"
 You've used 23 entries,
             4225 wiz_defined-function locations,
-            985 strings with 12296 characters,
+            986 strings with 12340 characters,
 and the built_in function-call counts, 10375 in all, are:
 = -- 877
 > -- 118

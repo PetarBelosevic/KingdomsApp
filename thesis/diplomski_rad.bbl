@@ -26,8 +26,8 @@
 
 \bibitem{BoardGamesPopularityReport2025}
 \BIBentryALTinterwordspacing
-G.~V. Research, ``Playing cards and board games market (2025 - 2030)'', 2025.,
-  pristupljeno: 2026-04-19. [Mre\v zno]. Adresa:
+{Grand View Research}, ``Playing cards and board games market (2025 - 2030)'',
+  2025., pristupljeno: 2026-04-19. [Mre\v zno]. Adresa:
   \url{https://www.grandviewresearch.com/industry-analysis/playing-cards-board-games-market}
 \BIBentrySTDinterwordspacing
 
@@ -40,8 +40,8 @@ BoardGameSanctuary, ``Best board game helper websites \& apps!'' 2023., blog
 
 \bibitem{Pointsman}
 \BIBentryALTinterwordspacing
-L.~Chimera~Software. (2020) Pointsman. Aplikacija, pristupljeno: 2026-04-20.
-  [Mre\v zno]. Adresa:
+{Chimera Software, LLC}. (2020) Pointsman. Aplikacija, pristupljeno:
+  2026-04-20. [Mre\v zno]. Adresa:
   \url{https://apps.apple.com/us/app/pointsman/id1447780441}
 \BIBentrySTDinterwordspacing
 
@@ -54,7 +54,7 @@ R.~Knizia, \emph{Kingdoms rulebook}, 2011., pDF dokument, pristupljeno:
 
 \bibitem{MorphologicalOperations}
 \BIBentryALTinterwordspacing
-OpenCV. Morphological transformations. Službena dokumentacija, pristupljeno:
+{OpenCV}. Morphological transformations. Službena dokumentacija, pristupljeno:
   2026-04-22. [Mre\v zno]. Adresa:
   \url{https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html}
 \BIBentrySTDinterwordspacing
@@ -62,8 +62,8 @@ OpenCV. Morphological transformations. Službena dokumentacija, pristupljeno:
 \bibitem{SUZUKI198532}
 \BIBentryALTinterwordspacing
 \BIBentryALTinterwordspacing
-S.~Suzuki i K.~be, ``Topological structural analysis of digitized binary images
-  by border following'', \emph{Computer Vision, Graphics, and Image
+S.~Suzuki i K.~Abe, ``Topological structural analysis of digitized binary
+  images by border following'', \emph{Computer Vision, Graphics, and Image
   Processing}, sv.~30, br.~1, str. 32--46, 1985.
   \url{https://doi.org/https://doi.org/10.1016/0734-189X(85)90016-7}
 \BIBentrySTDinterwordspacing
@@ -79,20 +79,20 @@ J.~Matas, C.~Galambos, i J.~Kittler, ``Robust detection of lines using the
 
 \bibitem{IBMDataAugmentation}
 \BIBentryALTinterwordspacing
-IBM. What is data augmentation? Pristupljeno: 2026-04-26. [Mre\v zno]. Adresa:
-  \url{https://www.ibm.com/think/topics/data-augmentation}
+{IBM}. What is data augmentation? Pristupljeno: 2026-04-26. [Mre\v zno].
+  Adresa: \url{https://www.ibm.com/think/topics/data-augmentation}
 \BIBentrySTDinterwordspacing
 
 \bibitem{ResNet18}
 \BIBentryALTinterwordspacing
-PyTorch. Resnet18. Službena dokumentacija, pristupljeno: 2026-04-17. [Mre\v
+{PyTorch}. Resnet18. Službena dokumentacija, pristupljeno: 2026-04-17. [Mre\v
   zno]. Adresa:
   \url{https://docs.pytorch.org/vision/main/models/generated/torchvision.models.resnet18.html#torchvision.models.resnet18}
 \BIBentrySTDinterwordspacing
 
 \bibitem{GeeksForGeeksDropout}
 \BIBentryALTinterwordspacing
-GeeksForGeeks. (2025) Dropout regularization in deep learning. Pristupljeno:
+{GeeksForGeeks}. (2025) Dropout regularization in deep learning. Pristupljeno:
   2026-06-16. [Mre\v zno]. Adresa:
   \url{https://www.geeksforgeeks.org/deep-learning/dropout-regularization-in-deep-learning/}
 \BIBentrySTDinterwordspacing
@@ -115,7 +115,7 @@ J.~Šnajder, ``Vrednovanje modela'', Nastavni materijal za kolegij
 
 \bibitem{Render}
 \BIBentryALTinterwordspacing
-Render. Deploy for free. Službena dokumentacija, pristupljeno: 2026-06-17.
+{Render}. Deploy for free. Službena dokumentacija, pristupljeno: 2026-06-17.
   [Mre\v zno]. Adresa: \url{https://render.com/docs/free}
 \BIBentrySTDinterwordspacing
 
@@ -128,8 +128,8 @@ A.~Chebbi. (2024) Choosing the best programming language for mobile app
 
 \bibitem{PowerGatePythonAndroidDiscussion}
 \BIBentryALTinterwordspacing
-P.~Software. (2025) Android app development using python: Is it the right
-  choice? Pristupljeno: 2026-04-18. [Mre\v zno]. Adresa:
+{PowerGate Software}. (2025) Android app development using python: Is it the
+  right choice? Pristupljeno: 2026-04-18. [Mre\v zno]. Adresa:
   \url{https://powergatesoftware.com/tech-blog/android-app-development-using-python/}
 \BIBentrySTDinterwordspacing
 
@@ -163,25 +163,25 @@ D.~Krei. (2024) Onnx explained with example | quick ml tutorial. YouTube video,
 
 \bibitem{AndroidIntent}
 \BIBentryALTinterwordspacing
-A.~Developers. (2026) Intents and intent filters. Službena dokumentacija,
-  pristupljeno: 2026-04-17. [Mre\v zno]. Adresa:
+{Android Developers}. (2026) Intents and intent filters. Službena
+  dokumentacija, pristupljeno: 2026-04-17. [Mre\v zno]. Adresa:
   \url{https://developer.android.com/guide/components/intents-filters}
 \BIBentrySTDinterwordspacing
 
 \bibitem{GitHubPyJNIus}
-K.~Team, ``Pyjnius'', \url{https://github.com/kivy/pyjnius}, 2025., gitHub
+{Kivy Team}, ``Pyjnius'', \url{https://github.com/kivy/pyjnius}, 2025., gitHub
   repozitorij, pristupljeno: 2026-06-20.
 
 \bibitem{KasperskyAPK}
 \BIBentryALTinterwordspacing
-Kaspersky. (2025) What is apk and how to install apk on your phone.
+{Kaspersky}. (2025) What is apk and how to install apk on your phone.
   Pristupljeno: 2026-06-20. [Mre\v zno]. Adresa:
   \url{https://www.kaspersky.com/resource-center/definitions/what-is-apk}
 \BIBentrySTDinterwordspacing
 
 \bibitem{BuildozerDocker}
 \BIBentryALTinterwordspacing
-Docker. (2026) kivy/buildozer. Službena dokumentacija, pristupljeno:
+{Docker}. (2026) kivy/buildozer. Službena dokumentacija, pristupljeno:
   2026-04-18. [Mre\v zno]. Adresa:
   \url{https://hub.docker.com/r/kivy/buildozer}
 \BIBentrySTDinterwordspacing

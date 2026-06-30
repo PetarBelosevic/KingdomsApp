@@ -2,6 +2,7 @@
 % Dodaj opciju upload za generiranje konačne verzije koja se učitava na FERWeb
 % Add the option upload to generate the final version which is uploaded to FERWeb
 
+
 \usepackage{blindtext}
 \usepackage{hyperref}
 \usepackage{makecell}
@@ -10,10 +11,11 @@
 \usepackage{booktabs}
 \usepackage{subcaption}
 
+
 %--- PODACI O RADU / THESIS INFORMATION ----------------------------------------
 
 % Naslov na engleskom jeziku / Title in English
-\title{Mobile application for Kingdomms board game}
+\title{Mobile application for analysis of the state of Kingdoms board game}
 
 % Naslov na hrvatskom jeziku / Title in Croatian
 \naslov{Mobilna aplikacija za analizu stanja igre u društvenoj igri Kraljevstva}
@@ -33,8 +35,6 @@
 % Datum rada na hrvatskom jeziku / Date in Croatian
 \datum{lipanj, 2026.}
 
-% TODO englizmi italic; Kivy
-% TODO programski sustav umjeto radni okvir
 %-------------------------------------------------------------------------------
 
 
@@ -62,8 +62,40 @@
 % Odovud započinje numeriranje stranica / Page numbering starts from here
 \mainmatter
 
+
+%--- SAŽETAK / ABSTRACT --------------------------------------------------------
+
+% Sažetak na hrvatskom
+\begin{sazetak}
+	Ovaj rad opisuje razvoj sustava za automatsko bodovanje društvene igre Kraljevstva korištenjem metoda računalnog vida i dubokog učenja. Cilj rada bio je omogućiti jednostavan prijenos stanja igre s fizičke igraće ploče u digitalni oblik te automatizirati proces izračuna bodova kroz Android mobilnu aplikaciju.
+
+	Razvijen je algoritam za detekciju uglova igraće ploče na fotografiji, perspektivnu transformaciju slike te izdvajanje pojedinačnih polja ploče. Za prepoznavanje elemenata igre izrađen je skup podataka dobiven fotografiranjem stvarnih konfiguracija ploče te je dodatno pojačan metodama augmentacije podataka. Implementirano je više konvolucijskih neuronskih mreža koje kaskadnim odlučivanjem klasificiraju različite vrste objekata na ploči, uključujući prazna polja, dvorce, kartice s brojevima i posebne kartice.
+	
+	Uz sustav računalnog vida razvijen je i programski model pravila igre koji omogućuje automatski izračun bodova na temelju prepoznatog stanja ploče. Cjelokupna funkcionalnost integrirana je u Android mobilnu aplikaciju koja sav izračun obavlja lokalno na uređaju. Rezultati pokazuju da razvijeni sustav uspješno prepoznaje elemente igre i omogućuje učinkovitu automatizaciju procesa bodovanja.
+\end{sazetak}
+
+\begin{kljucnerijeci}
+  računalni vid; duboko učenje; konvolucijske neuronske mreže; obrada slike; Android aplikacija; društvene igre; Kraljevstva
+\end{kljucnerijeci}
+
+
+% Abstract in English
+\begin{abstract}
+  This thesis presents the development of an automated scoring system for the board game Kingdoms using computer vision and deep learning techniques. The objective was to enable a simple transfer of game state information from a physical game board into a digital representation and to automate the score calculation process through an Android mobile application.
+  
+  A board detection algorithm was developed to locate the corners of the game board in a photograph, perform perspective transformation, and extract individual board positions. A dataset was created by photographing real game configurations, while various data augmentation techniques were applied. Several convolutional neural networks were implemented, using a cascading decision-making process to classify different types of objects on the board, including empty cells, castles, numbered cards, and special cards.
+  
+  In addition to the computer vision subsystem, an implementation of the game rules was developed to calculate scores based on the board state. The complete solution was integrated into an Android application that performs all computations locally. The results demonstrate that the proposed system successfully recognizes game elements and provides effective automation of the scoring process.
+\end{abstract}
+
+\begin{keywords}
+  computer vision; deep learning; convolutional neural networks; image processing; Android application; board games; Kingdoms
+\end{keywords}
+
+
 % Sadržaj se automatski generira / Table of contents is automatically generated
 \tableofcontents
+
 
 %--- UVOD / INTRODUCTION -------------------------------------------------------
 \chapter{Uvod}
@@ -112,10 +144,12 @@
 	\end{itemize}
 	
 	Također postoje i aplikacije specijalizirane za konkretne igre. Jedan takav primjer je aplikacija \href{https://apps.apple.com/us/app/pointsman/id1447780441}{\textit{Pointsman}} namijenjena za igru \textit{Ticket To Ride}. Aplikacija je razvijena za iOS te omogućuje korisniku snimanje igraće ploče iz čega se izračunavaju ostvareni bodovi za svakog igrača. Aplikacija dakle koristi metode računalnog vida za detekciju ploče i elemenata igre te između ostalog prilagođene algoritme strojnog učenja za prepoznavanje vlakova na ploči~\cite{Pointsman}. S obzirom na to da aplikacijska logika može napraviti krive predikcije, aplikacija korisniku nudi jednostavno sučelje za potrebna ispravljanja~\cite{Pointsman}. Ova aplikacija je upravo reprezentativan primjer onoga što se želi postići u ovom diplomskom radu za društvenu igru Kraljevstva, uz značajno jednostavniji vizualni dizajn sučelja te za Android okruženje. 
-			
+
+
+%-------------------------------------------------------------------------------
 \chapter{Društvena igra Kraljevstva}
-	\label{pog:drustvena_igra}
-	
+\label{pog:drustvena_igra}
+
 	Kraljevstva su društvena igra za 2 do 4 igrača koju je dizajnirao Reiner Knizia. Igra se sastoji od 3 identične runde. U svakoj rundi igrači na ploču naizmjence postavljaju nasumične kartice ili dvorce. Igraća ploča se sastoji od pravilne rešetke od 5 redaka i 6 stupaca. Runda završava kada se zauzmu sva polja na ploči. Primjer igraće ploče s postavljenim karticama i dvorcima na kraju runde je vidljiv na slici~\ref{slk:igraca_ploca}. Na kraju runde računaju se bodovi svakog igrača te se oni u konačnici zbrajaju. Igrač s najviše bodova pobjeđuje. 
 	
 	Vrijedi napomenuti da se u pravoj igri bodovi prate pomoću novčića. Na početku svaki igrač dobiva novčiće u vrijednosti od 50 bodova. Kroz igru igrač dobiva ili gubi novčiće ovisno o ostvarenim bodovima. U ovom radu će spomenuti mehanizam novčića biti zanemaren, ali to neće utjecati na samu mehaniku igre. Dakle, u radu se drži pretpostavka da svaki igrač počinje s 0 bodova te da nema novčića za praćenje bodova. Bodove će se ionako moći pratiti kroz aplikaciju.
@@ -128,27 +162,29 @@
 	\end{figure}
 	
 	\section{Objekti na igraćoj ploči}
-		Kao što je već spomenuto, elementi koje igrači mogu postaviti na ploču se mogu svrstati u dvije kategorije - dvorci i kartice. Dvorci pripadaju pojedinim igračima i njihova uloga je prikupljanje bodova. S druge strane postavljene kartice su dijeljeni elementi te mogu donositi pozitivne ili negativne bodove/resurse ili imati posebne efekte. Svi navedeni elementi igre koji se mogu postaviti na igraću ploču prikazani su na slici~\ref{slk:elementi_igre}
-		
-		\begin{figure}[htb]
-			\centering
-			\includegraphics[width=1.0\linewidth]{figures/elementi_igre.jpg} 
-			\caption{Kartice i dvorci igre.}
-			\label{slk:elementi_igre}
-		\end{figure}
-		
-		Dvorci dolaze u četiri boje, svaka za jednog igrača: crvena, zelena, plava i žuta. Dodatno, dvorci u svakoj boji se razlikuju po svojim razinama, odnosno rangovima. Svaka razina dvorca se prepoznaju po veličini i obliku dvorca. Tako u svakoj boji postoji četiri dvorca razine 1, tri dvorca razine 2, dva dvorca razine 3 i jedan dvorac razine 4. Dvorac prikuplja resurse u svojem retku i stupcu, a razina dvorca određuje multiplikator bodova koje je taj dvorac prikupio. Dvorci koji su iskorišteni u nekoj rundi se ne mogu ponovno koristiti u kasnijim rundama.
-		
-		Postoje dvije vrste kartica: kartice resursa i posebne kartice. Kartice resursa mogu donositi negativne ili pozitivne bodove, a bodovi su napisani na samim karticama. Pozitivne kartice donose bodove u iznosima od 1 do 6. Postoje dvije pozitivne kartice za svaku vrijednost bodova, dakle 12 kartica ukupno. Negativne kartice donose bodove u iznosima od -6 do -1 te postoji samo jedna kartica za svaku vrijednost negativnih bodova, dakle ukupno 6 kartica.
-		
-		Postoje 4 vrste specijalnih kartica: planina, zmaj, rudnik zlata i čarobnjak. Ove kartice ne donose bodove direktno, već utječu na druge kartice i dvorce u svojim redcima i stupcima. Kartica planine razdvaja redak i stupac u kojem se nalazi na dva dijela. Time efektivno taj redak i stupac postaju dva manja retka i stupca koja se promatraju odvojeno. Efekti s jedne strane planine nemaju utjecaj na drugoj strani planine. Postoje ukupno dvije takve kartice. Kartica zmaja poništava pozitivne kartice, ali samo za bodovanje retka i stupca u kojem se kartica zmaja nalazi. Postoji samo jedna takva kartica. Kartica rudnika zlata udvostručuje vrijednost svih kartica resursa, dakle i pozitivnih i negativnih. Taj efekt vrijedi samo tijekom bodovanja retka i stupca u kojem se nalazi kartica rudnika zlata. Postoji samo jedna kartica rudnika zlata. Kartica čarobnjaka uvećava rang svakog dvorca u svojem neposrednom 4-susjedstvu te postoji samo jedna takva kartica.
+	Kao što je već spomenuto, elementi koje igrači mogu postaviti na ploču se mogu svrstati u dvije kategorije - dvorci i kartice. Dvorci pripadaju pojedinim igračima i njihova uloga je prikupljanje bodova. S druge strane postavljene kartice su dijeljeni elementi te mogu donositi pozitivne ili negativne bodove/resurse ili imati posebne efekte. Svi navedeni elementi igre koji se mogu postaviti na igraću ploču prikazani su na slici~\ref{slk:elementi_igre}
+	
+	\begin{figure}[htb]
+		\centering
+		\includegraphics[width=1.0\linewidth]{figures/elementi_igre.jpg} 
+		\caption{Kartice i dvorci igre.}
+		\label{slk:elementi_igre}
+	\end{figure}
+	
+	Dvorci dolaze u četiri boje, svaka za jednog igrača: crvena, zelena, plava i žuta. Dodatno, dvorci u svakoj boji se razlikuju po svojim razinama, odnosno rangovima. Svaka razina dvorca se prepoznaju po veličini i obliku dvorca. Tako u svakoj boji postoji četiri dvorca razine 1, tri dvorca razine 2, dva dvorca razine 3 i jedan dvorac razine 4. Dvorac prikuplja resurse u svojem retku i stupcu, a razina dvorca određuje multiplikator bodova koje je taj dvorac prikupio. Dvorci koji su iskorišteni u nekoj rundi se ne mogu ponovno koristiti u kasnijim rundama.
+	
+	Postoje dvije vrste kartica: kartice resursa i posebne kartice. Kartice resursa mogu donositi negativne ili pozitivne bodove, a bodovi su napisani na samim karticama. Pozitivne kartice donose bodove u iznosima od 1 do 6. Postoje dvije pozitivne kartice za svaku vrijednost bodova, dakle 12 kartica ukupno. Negativne kartice donose bodove u iznosima od -6 do -1 te postoji samo jedna kartica za svaku vrijednost negativnih bodova, dakle ukupno 6 kartica.
+	
+	Postoje 4 vrste specijalnih kartica: planina, zmaj, rudnik zlata i čarobnjak. Ove kartice ne donose bodove direktno, već utječu na druge kartice i dvorce u svojim redcima i stupcima. Kartica planine razdvaja redak i stupac u kojem se nalazi na dva dijela. Time efektivno taj redak i stupac postaju dva manja retka i stupca koja se promatraju odvojeno. Efekti s jedne strane planine nemaju utjecaj na drugoj strani planine. Postoje ukupno dvije takve kartice. Kartica zmaja poništava pozitivne kartice, ali samo za bodovanje retka i stupca u kojem se kartica zmaja nalazi. Postoji samo jedna takva kartica. Kartica rudnika zlata udvostručuje vrijednost svih kartica resursa, dakle i pozitivnih i negativnih. Taj efekt vrijedi samo tijekom bodovanja retka i stupca u kojem se nalazi kartica rudnika zlata. Postoji samo jedna kartica rudnika zlata. Kartica čarobnjaka uvećava rang svakog dvorca u svojem neposrednom 4-susjedstvu te postoji samo jedna takva kartica.
 	
 	\section{Pravila bodovanja}
 		Runda završava kada se popune sva polja na ploči i tada počinje proces bodovanja. Prema službenim pravilima potrebno je bodovati svaki redak i stupac na ploči zasebno. Stupac/redak se boduje tako da se zbroje sve vrijednosti resursa u tom retku/stupcu, uključujući i pozitivne i negativne resurse. Nakon toga se za svaki dvorac na ploči zbrajaju bodovi retka i stupac u kojima se on nalazi te se ti bodovi množe s rangom dvorca. Dobiveni bodovi se dodjeljuju igraču kojemu dvorac pripada. Primjer kako se boduje konkretno stanje ploče je dostupan i u službenim pravilima~\cite{KingdomsRulebook}.
+	
+%-------------------------------------------------------------------------------
 
 \chapter{Arhitektura sustava}
-	\label{pog:arhitektura}
-	
+\label{pog:arhitektura}
+
 	Cijeli sustav je na vrlo visokoj razini apstrakcije opisan dijagramom prikazanim na slici~\ref{slk:arhitektura_sustava}. Sve počinje od fotografije igraće ploče koja je ulaz u sustav. Sustav prvo detektira ploču na fotografiji te detektiranu ploču ispravlja tako da neovisno o kutu iz kojeg je ploča uslikana uvijek dobivamo izrezanu ploču iz iste perspektive te u istim dimenzijama slike. Iz ispravljene slike ploče izrezuju se fotografije pojedinih pozicija u rešetki koja se nalazi na ploči. Ovaj dio sustava je ostvaren korištenjem klasičnih metoda računalnog vida, kao na primjer Cannyjev algoritam te Houghove transformacije.
 	
 	\begin{figure}[htb]
@@ -163,7 +199,7 @@
 	S obzirom na ograničene resurse izrađen skup podataka za učenje je relativno skroman. Stoga je dodatno razvijen sustav za augmentaciju slika kojim se iz originalnih fotografija umjetno stvaraju nove vjerne varijacije originalne fotografije. Taj sustav je korišten tijekom treniranja dubokih modela kako bi se umjetno povećao skup podataka za treniranje.
 	
 	Na temelju prethodno opisane analize ulazne slike sustav izrađuje model stanja igre, to jest računalnu reprezentaciju ploče s njezinim sadržajem. Nad dobivenim modelom stanja igre jednostavno se primjenom pravila igre izračunavaju ostvareni bodovi za pojedinog igrača.
-		
+	
 	\section{Detekcija ploče}
 	\label{pog:detekcija}
 		Problem detekcije ploče pojavljuje se na dva mjesta u procesu razvoja. Prvo mjesto je kod izrade skupa podataka za učenje, s obzirom na to da je potrebno iz generičkih fotografija ploče napraviti standardiziranu izrezanu fotografiju ploče iz perspektive direktnog pogleda odozgo. Drugo mjesto u kojem se pojavljuje detekcija ploče je u samoj mobilnoj aplikaciji kada korisnik uslika fotografiju. S obzirom na to da će modeli dubokog učenja kod korištenja aplikacije dobivati fotografije iz ovog procesa, bitno je da je i njihov skup podataka za učenje nastao iz identičnog procesa. Stoga je smisleno napraviti podsustav za detekciju koji će se dijeliti u oba procesa. Ovaj podsustav je odabran prvi za razvoj jer je izrada skupa podataka za učenje osnovni preduvjet za daljnji razvoj dubokih modela.
@@ -176,7 +212,7 @@
 			\caption{Apstraktna arhitektura sustava detekciju ploče i izrezivanje pozicija.}
 			\label{slk:arhitektura_detekcije}
 		\end{figure}
-
+		
 		\subsection{Traženje uglova ploče}
 			Prvi korak u traženju uglova ploče je pretprocesiranje. Slika se prvo skalira tako da najveća dimenzija slike iznosi 1000 piksela. Nakon toga slijedi transformacija slike u sivi spektar. Završno se primjenjuje relativno jako Gaussovo zamućenje kako bi se uklonio šum i sitni detalji. 
 			
@@ -267,7 +303,7 @@
 				\caption{Rešetka primijenjena na ispravljenu sliku ploče.}
 				\label{slk:resetka}
 			\end{figure}
-		
+	
 	\section{Stvaranje skupa podataka za učenje}
 		Kao što je ranije rečeno, potrebno je izraditi skup podataka za učenje dubokih modela koje će sustav koristiti. Duboki modeli će klasificirati sličice pojedinačnih objekata na ploči. Sličice će se dobivati postupkom opisanim u poglavlju \ref{pog:detekcija}. Skup podataka za učenje će se zbog toga sastojati od sličica pojedinačnih polja na rešetki ploče koja će sadržavati elemente igre (dvorce i kartice).
 		
@@ -278,9 +314,9 @@
 		Fotografije ploče su bile provučene kroz prethodno opisan sustav za detekciju ploče i izrezivanje pojedinih polja. Dobivene slike izrezanih polja su zatim spremljene te one predstavljaju same podatke za učenje.
 		
 		Fotografije ploča su dodatno korištene za evaluaciju samog sustava za detekciju ploče. U tu svrhu, sama ploča je fotografirana na 3 različite podloge: bijeli stol, crni stol te stol teksture svijetlog drva. Na taj načine se evaluiralo kako se detekcija ponaša uz različite kontraste pozadine i ploče. Sustav je uspješno detektirao ploču na svim fotografijama, kojih je bilo 57, na svim pozadinama te uvjetima osvjetljenja i sjena.
-	
+		
 		\subsection{Označavanje podataka} % ili u privitak?
-			\label{podpog:oznacanjavnje}
+		\label{podpog:oznacanjavnje}
 			Ovdje se radi o problemu nadziranog učenja što znači da podaci moraju imati svoje oznake. Međutim, u ovom konkretnom slučaju klasifikacija se radi u više koraka pomoću više modela, što je detaljnije objašnjeno u poglavlju~\ref{pog:klasifikacija}. Različiti modeli za iste podatke trebaju različite oznake. Na primjer, jedan model za svaku sliku donosi klasifikacijsku odluku radi li se o praznom polju, polju s karticom ili polju s dvorcem. Za taj model postoje oznake \textit{empty}, \textit{card} i \textit{castle}. Neki drugi model klasificira dvorce prema njihovom rangu te takav model koristi oznake \textit{1}, \textit{2}, \textit{3} i \textit{4}.
 			
 			Dakle, u ovom skupu podataka podaci imaju složene oznake koje sadržavaju potpunu informaciju o svakoj slici.Takva složena oznaka se sastoji od više oznaka koje se mogu koristiti ovisno o konkretnom problemu. Svaka složena oznaka prvo sadrži oznaku o vrsti objekta na slici koja definira radi li se o slici praznog polja, polja s karticom ili polja s dvorcem (pripadne oznake \textit{empty}, \textit{card} i \textit{castle}). 
@@ -290,7 +326,7 @@
 			Ako pak prva oznaka označava da se radi o slici dvorca, slijede dvije oznake koje opisuju boju i rang dvorca. Oznake boje dvorca su \textit{red}, \textit{green}, \textit{blue} i \textit{yellow}. Oznake za rang dvorca su \textit{1}, \textit{2}, \textit{3} i \textit{4}.
 			
 			Kako bi se ubrzao proces označavanja podataka dodatno je napravljena jednostavna aplikacija za označavanje slika. Sučelje aplikacije je vidljivo na slici~\ref{slk:oznacavanje}. Aplikacija omogućuje pregled neoznačenih slika i dodjeljivanje njihovih složenih oznaka. Također je omogućen i pregled već označenih slika te izmjena njihovih oznaka. Oznake se mogu dodijeliti ili izmijeniti korištenjem gumbova kojima se efektivno opisuje sadržaj slike. Postupak označavanja gumbovima prati prethodno opisanu strukturu složene oznake. Oznake se dodatno mogu dodijeliti ili izmijeniti korištenjem tipkovničkih prečaca. Tako se pritiskom jedne ili kombinacijom dvije tipke na tipkovnici može dodijeliti potpuna oznaka što uvelike ubrzava proces označavanja.
-		
+			
 			\begin{figure}[htb]
 				\centering
 				\includegraphics[width=1.0\linewidth]{figures/labeliranje_aplikacija.png} 
@@ -332,7 +368,7 @@
 				\item \textit{number\_cards} - sadrži slike kartica s brojevnim vrijednostima, a izdvojena je oznaka vrijednosti kartice (vrijednosti od \textit{-6} do \textit{-1} i od \textit{1} do \textit{6}).
 				\item \textit{special\_cards} - sadrži slike posebnih kartica, a izdvojena je oznaka konkretne posebne kartice (\textit{dragon}, \textit{gold mine}, \textit{mountain} i \textit{wizard}).
 			\end{itemize}
-		
+	
 	\section{Augmentacija}
 	\label{pog:augmentacija}
 		Kako bi se djelomično kompenzirala mala veličina i potencijalno nedovoljna raznolikost napravljenog skupa podataka dodatno je korištena tehnika augmentacije podataka. Augmentacija podataka je metoda koja se u strojnom učenju manifestira kao generiranje modificiranih kopija već postojećih podataka~\cite{IBMDataAugmentation}. Cilj augmentacije je povećanje veličine i raznolikosti skupa podataka~\cite{IBMDataAugmentation}. Augmentacije koje su korištene u ovo radu su opisane u nastavku. Primjer originalne slike i primijenjenih pojedinačnih augmentacija koje su korištene u ovom radu prikazani su na slici~\ref{slk:augmentacije_zasebno} u pravilnoj rešetki od 3 reda i 4 stupca. Originalna slika se nalazi u prvom redu u prvom stupcu slike. Dodatno, primjer s primijenjenim nasumičnim kombinacijama augmentacija, kako su korištene prilikom treniranja modela, vidljiv je na slici~\ref{slk:augmentacije_nasumicno}. 
@@ -343,20 +379,20 @@
 			\caption{Primjer pojedinačnih augmentacija.}
 			\label{slk:augmentacije_zasebno}
 		\end{figure}
-
+		
 		\begin{figure}[htb]
 			\centering
 			\includegraphics[width=1.0\linewidth]{figures/augmentacije_nasumicno.png} 
 			\caption{Primjer nasumičnih kombinacija augmentacija.}
 			\label{slk:augmentacije_nasumicno}
 		\end{figure}
-	
+		
 		\subsection{Rotacija}
 			Rotacija je jedna od osnovnih i najjednostavnijih augmentacija koje su korištene u ovom radu. Konkretno su korištene rotacije za $90^\circ$, $180^\circ$ i $270^\circ$. Obrazloženje za korištenje rotacije je činjenica da igrači mogu elemente postavljati u različitim orijentacijama. Razlog za korištenje samo navedena tri kuta za rotaciju je prije svega što su slike pravokutne te bi se rotiranjem za neku drugu količinu stupnjeva dobila nepravilna slike koja bi vjerojatno narušila kvalitetu predikcije modela. Dodatno, kartice koje se postavljaju na ploču su obično postavljene u jednoj od tri navedene orijentacije uz blaga odstupanja, tako da je ovaj izbor bio logičan. Vjerojatnost korištenja rotacije prilikom augmentiranja slike je 75\% uz uniformnu vjerojatnost odabira jednog od tri moguća kuta rotacije. Primjeri rotirane originalne slike mogu se vidjeti na slici~\ref{slk:augmentacije_zasebno} u prvom redu.
 		
 		\subsection{Kontrast i svjetlina}
 			Promjena kontrasta ostvaruje se skaliranjem vrijednosti svih piksela za zadani faktor. Faktor skaliranja se odabire prema uniformnoj distribuciji na intervalu $[0.8, 1.2]$. Na slici~\ref{slk:augmentacije_zasebno} prikazani su primjeri pojačavanja i smanjenja kontrasta. Primjer pojačanja kontrasta s faktorom skaliranja iz uniformne distribucije na intervalu $[1.1, 1.5]$ je vidljiv u drugom redu u trećem stupcu, dok je primjer smanjenja kontrasta s faktorom skaliranja iz uniformne distribucije na intervalu $[0.5, 0.9]$ vidljiv u drugom redu u četvrtom stupcu.
-		
+			
 			Promjena svjetline se ostvaruje dodavanjem zadane vrijednosti na vrijednost svakog piksela. Vrijednost koja se dodaje na svaki piksel odabire se relativno s obzirom na prosječnu svjetlinu piksela slike. Ta vrijednost se računa tako da se odabere faktor iz uniformne distribucije kojim se množi svjetlina slike. Svjetlina slike je izračunata kao prosječna vrijednost svih piksela u slici po svim kanalima. Primjeri smanjivanja i pojačavanja svjetline su vidljivi na slici~\ref{slk:augmentacije_zasebno} u drugom redu u prvom i drugom stupcu. Za smanjivanje svjetline na primjeru se koristio faktor iz uniformne distribucije na intervalu $[0.6, 1.0]$, dok se za pojačavanje svjetline na primjeru koristio faktor iz uniformne distribucije na intervalu $[1.0, 1.4]$.
 			
 			Interval uniformne distribucije je početno postavljen na $[0.8, 1.2]$. Ako je pak svjetlina slike iznad unaprijed određenog gornjeg praga svjetline, uzima se interval $[0.65, 1.05]$. Cilj je spriječiti stvaranje slike koja je neprirodno presvijetla. Ako je pak svjetlina slike ispod unaprijed određenog donjeg praga svjetline, uzima se interval $[0.95, 1.35]$. Cilj je spriječiti pretjerano tamne slike koje djeluju neprirodno.
@@ -394,10 +430,10 @@
 			Kod linijskih sjena idući je korak odabir nasumične točke na slici te nasumičnog kuta. Odabrana točka će biti jedna krajnja točka linije, dok će odabrani kut definirati suprotan smjer od smjera u kojem će linija biti orijentirana od odabrane točke prema rubu slike. Iz odabrane točke i kuta računaju se parametri pripadnog pravca te okomitog pravca koji prolazi kroz odabranu točku. Za originalni pravac računa se maska apsolutne udaljenosti od pravca dok se za okomiti pravac računa maska predznačne udaljenosti. Ove dvije maske se zatim kombiniraju tako da se na svakoj poziciji odabire veća vrijednost iz danih maski. Novodobivena maska se zatim modificira tako da se vrijednost svake pozicije oduzme od polovice vrijednosti odabrane širine linije. Konačna maska se dobiva ograničavanjem vrijednosti maske na interval $[0, ostrina]$ kako bi se kontrolirala širina prijelaza sjene. Zatim se vrijednosti maske dijele s oštrinom kako bi se vrijednosti ograničile na interval $[0, 1]$. Konačna slika se ponovno dobiva množenjem originalne slike s vrijednostima u komplementarnoj maski koja se dobiva kao $1-maska$. Primjer ovakve augmentacije je vidljiv na slici~\ref{slk:augmentacije_zasebno} u trećem redu u četvrtom stupcu.
 			
 			Vjerojatnost dodavanja sjene na sliku tijekom provođenja augmentacije je 60\% ako se ne provodi dodavanje odsjaja niti direktna promjena kontrasta i svjetline. Od toga se linijska sjena pojavljuje u 50\% slučajeva, dok se u ostalih 50\% slučajeva pojavljuje poluprostorna sjena.
-
+	
 	\section{Klasifikacijski modeli}
 	\label{pog:klasifikacija}
-		
+	
 		Kao što je prije rečeno, za klasifikaciju objekata na pojedinim poljima koriste se metode dubokog učenja. Vjerojatno najjednostavniji pristup bio bi uzeti postojeći predtrenirani model te ga prilagoditi i dotrenirati za klasifikaciju objekata na poljima ove igre. Međutim, mana takvog pristupa je da se koriste modeli koji su pretjerano veliki, a samim time i sporiji te zahtjevniji za treniranje. Naprimjer, najmanji dostupan \textit{ResNet} model u programskoj biblioteci \textit{PyTorch}, \textit{ResNet18} ima veličinu od 44.7 MB~\cite{ResNet18} te skoro 11.7 milijuna parametara~\cite{ResNet18}. Iako bi korištenje i lokalno dotreniranje takvog modela bilo izvedivo, drugim pristupom moguće je ostvariti željene rezultate s ukupno manjim brojem parametara i značajno manjim modelima.
 		
 		Ideja koja se koristi u ovom radu je rastav problema klasifikacije na više koraka. U svakom koraku se rješavaju klasifikacijski potproblemi koji zajedno rješavaju početni problem. U tu svrhu potrebno je koristiti više klasifikacijskih modela - po jedan za svaki potproblem. Rezultat ovakvog pristupa su mali i kompaktni modeli koji ne zahtijevaju puno resursa za treniranje, ali imaju vrlo visoke performanse u kontekstu točnosti predikcija. Konkretno, rezultantni \textit{PyTorch} modeli imaju ukupnu veličinu od oko 4 MB te oko 500000 parametara. Ovo je bitno jer je cilj ovog rada razviti aplikaciju koja će raditi potpuno lokalno bez spajanja na vanjske servise. Zbog toga je bitno da korišteni modeli budu mali i brzi kako bi aplikacija bila što efikasnija na mobilnim uređajima.
@@ -432,7 +468,7 @@
 			\end{figure}
 			
 			Konkretne arhitekture pojedinih modela prikazane su u tablici \ref{tab:cnn_arhitekture}.
-		
+			
 			\begin{table}[htb]
 				\centering
 				\caption{Pregled arhitektura konvolucijskih modela.}
@@ -471,7 +507,7 @@
 					\end{tabular}
 				\end{adjustbox}
 			\end{table}
-			
+		
 		\subsection{Treniranje modela}
 			Tijekom učenja koristi se gubitak unakrsne entropije, dok se za optimizaciju koristi Adam optimizator. Adam je optimizacijska tehnika koja kombinira moment gradijenta i adaptivnu stopu učenja za svaki parametar~\cite{GeeksForGeeksAdam}. Ovime se postiže stabilnije učenje i često jednostavnije podešavanje hiperparametara u odnosu na stohastički gradijentni spust~\cite{GeeksForGeeksAdam}. Uz Adam optimizator koristi se i L2 regularizacija koja se manifestira u hiperparametru iščezavanja težina (\textit{engl. weight decay}). Konkretne konfiguracije za treniranje pojedinog modela su vidljive u tablici \ref{tab:cnn_hiperparametri}.
 			
@@ -510,11 +546,11 @@
 						\makecell{Model za klasifikaciju\\kartica s brojevima}
 						& 32 & 0.0002 & 0.0000 & 60 & 25 & 0.1 \\
 						
-			            \bottomrule
+						\bottomrule
 					\end{tabular}
 				\end{adjustbox}
 			\end{table}
-			
+		
 		\subsection{Odabir hipoteza i vrednovanje modela}
 		\label{podpog:odabir_i_vrednovanje}
 			% odabir modela ili hipoteze?
@@ -546,14 +582,14 @@
 			
 			Mikro-uprosječenja navedenih mjera vrednovanja na testnom skupu za svaki od odabranih modela vidljive su u tablici~\ref{tab:rezultati_modela}. Vrijedi opaziti da za svaki model sve mjere vrednovanja imaju istu vrijednost, što je posljedica korištenja mikro-uprosječenja mjera~\cite{Snajder2022VrednovanjeModela}. U tablici~\ref{tab:rezultati_modela} je vidljivo da su gotovo svi modeli ostvarili savršenu točnost. Jedina iznimka je model za klasifikaciju ranga dvorca. Tijekom treniranja se pokazalo da je to bio daleko najsloženiji klasifikacijski problem. To se odrazilo i u tome da je za taj problem korišten daleko najsloženiji model te je on pronađen kroz daleko najveći broj pokušaja - čak 40. Iako su ostali modeli ostvarili savršenu točnost na testnom skupu, taj rezultat treba uzeti sa zrnom soli. Naime, skup podataka za učenje koji se koristio kod treniranja je bio relativno mali. Stoga je vrlo moguće da su za neke modele ove procjene neprecizne. No unatoč tome s visokom razinom sigurnosti može se tvrditi da su prave točnosti naučenih modela vrlo visoke. Stoga su ovi rezultati u svakom slučaju zadovoljavajući.
 			
-			 % je kod svakog modela ostvarena vrlo visoka točnost na testnom skupu. Najlošiju ostvarenu točnost ima model za klasifikaciju posebnih kartica, ali treba napomenuti da je model zapravo napravio krivu klasifikaciju na samo jednom primjeru u testnom skupu. Tako veliki pad u točnosti radi samo jednog primjera je posljedica vrlo malog skupa za testiranje. Drugi model koji nije ostvario savršenu točnost jest model za klasifikaciju razine dvorca.  To je bilo posebno izraženo na nekim problemima, kao što je već rečeno na primjeru modela za klasifikaciju posebnih kartica.
-			
+			% je kod svakog modela ostvarena vrlo visoka točnost na testnom skupu. Najlošiju ostvarenu točnost ima model za klasifikaciju posebnih kartica, ali treba napomenuti da je model zapravo napravio krivu klasifikaciju na samo jednom primjeru u testnom skupu. Tako veliki pad u točnosti radi samo jednog primjera je posljedica vrlo malog skupa za testiranje. Drugi model koji nije ostvario savršenu točnost jest model za klasifikaciju razine dvorca.  To je bilo posebno izraženo na nekim problemima, kao što je već rečeno na primjeru modela za klasifikaciju posebnih kartica.
+	
 	\section{Mobilna aplikacija za Android}
 		Cijeli sustav je na kraju enkapsuliran u Android mobilnu aplikaciju. Mobilna aplikacija je zamišljena tako da može funkcionirati potpuno lokalno bez spajanja na vanjske servise. Varijanta s vanjskim servisom na poslužitelju u ovom kontekstu nema previše smisla zbog nepotrebnih komplikacija koje uvodi. Prije svega, takva varijanta bi zahtijevala pristup poslužitelju kojeg bi bilo potrebno konfigurirati. Iako danas postoje besplatne usluge javnih poslužitelja, kao na primjer \textit{Render}~\cite{Render}, one često pružaju ograničene performanse te se ne preporučuju za produkcijske aplikacije~\cite{Render}. U slučaju ozbiljnog korištenja aplikacije ovakav pristup bi vjerojatno značajno srozao performanse cijelog sustava. Također, ovakva varijanta bi zahtijevala internetsku vezu prema centralnom poslužitelju, što je nepotrebna ovisnost. Dodatno, kompletna logika i duboki modeli cijele aplikacije su dovoljno jednostavni te ne predstavljaju pretjerano memorijsko i procesorsko opterećenje za mobilne uređaje. Zbog svega navedenog, razvoj mobilne aplikacije s odvojenim vanjskim servisom ne donosi nikakve praktične prednosti, a uvodi nepotrebne slabosti u cijeli sustav. Zbog toga je i takva ideja razvoja odbačena.
 		
-		Aplikacija je napravljena na način da korisniku nudi dva režima rada za praćenja igre. Jedan način omogućuje korisniku praćenje rezultata cijele igre kroz sve tri runde. Ovaj režim omogućuje korisniku da koristi aplikaciju za cjelokupno praćenje igre i maksimalno iskoristi mogućnosti aplikacije. Drugi način omogućuje korisniku jednokratan pregled stanja ploče neovisno o trenutačnoj fazi igre. Ovaj režim omogućuje da korisnik koristi aplikaciju kao pomoćni alat. Dodatno, ovim načinom rada korisnik može provjeravati stanje ploče usred runde, što mu može pomoći u donošenju odluka tijekom igre. Na slici~\ref{slk:zasloni_aplikacije}a vidljiv je početni zaslon aplikacije na kojem se bira jedan od dva režima rada.
+		Aplikacija je napravljena na način da korisniku nudi dva režima rada za praćenja igre. Jedan način omogućuje korisniku praćenje rezultata cijele igre kroz sve tri runde. Ovaj režim omogućuje korisniku da koristi aplikaciju za cjelokupno praćenje igre i maksimalno iskoristi mogućnosti aplikacije. Drugi način omogućuje korisniku jednokratan pregled stanja ploče neovisno o trenutačnoj fazi igre. Ovaj režim omogućuje da korisnik koristi aplikaciju kao pomoćni alat. Dodatno, ovim načinom rada korisnik može provjeravati stanje ploče usred runde, što mu može pomoći u donošenju odluka tijekom igre. Na slici~\ref{podslk:applikacija_glavni} vidljiv je početni zaslon aplikacije na kojem se bira jedan od dva režima rada.
 		
-		U prvom načinu rada korisnik na kraju svake runde fotografira ploču ili učitava već postojeću fotografiju iz galerije mobitela. Na slici~\ref{slk:zasloni_aplikacije}b se vidi zaslon na kojem korisnik bira na koji način će piložiti sliku. Aplikacija koristi sustav za detekciju ploče opisan u poglavlju~\ref{pog:detekcija}. Detektirana ploča se prikazuje na zaslonu kao na slici~\ref{slk:zasloni_aplikacije}c. S obzirom na to da sustav može griješiti, korisnik mora potvrditi detektiranu ploču ili ponovno priložiti fotografiju fotografiranjem ili učitavanjem fotografije. Nakon što korisnik potvrdi detektiranu ploču aplikacija koristi modele iz tablice~\ref{tab:cnn_arhitekture} na način opisan u poglavlju~\ref{pog:klasifikacija}. Dobivene predikcije se koriste se za izradu modela ploče koji se prikazuje korisniku, kao na slici~\ref{slk:zasloni_aplikacije}d. Korisnik može pregledati prikazane predikcije. S obzirom na to da klasifikacijski modeli mogu pogriješiti, korisniku je omogućeno i uređivati predložene predikcije. Korisnik nakon opcionalnog uređivanja može potvrditi predikcije. Nakon potvrde aplikacija primjenjuje pravila igre kako bi izračunala bodove svakog igrača. Izračunati bodovi se prikazuju korisniku zajedno sa prijašnjim bodovima te ukupnom sumom za svakog igrača, kao što je vidljivo na slici~\ref{slk:zasloni_aplikacije}e. Ovaj krug se ponavlja tri puta, jednom za svaku rundu. Na kraju treće runde i prikaza bodova aplikacija proglašava pobjednika, nakon čega se vraća na početni zaslon.
+		U prvom načinu rada korisnik na kraju svake runde fotografira ploču ili učitava već postojeću fotografiju iz galerije mobitela. Na slici~\ref{podslk:izbor_slike} se vidi zaslon na kojem korisnik bira na koji način će piložiti sliku. Aplikacija koristi sustav za detekciju ploče opisan u poglavlju~\ref{pog:detekcija}. Detektirana ploča se prikazuje na zaslonu kao na slici~\ref{podslk:detektirana_ploca}. S obzirom na to da sustav može griješiti, korisnik mora potvrditi detektiranu ploču ili ponovno priložiti fotografiju fotografiranjem ili učitavanjem fotografije. Nakon što korisnik potvrdi detektiranu ploču aplikacija koristi modele iz tablice~\ref{tab:cnn_arhitekture} na način opisan u poglavlju~\ref{pog:klasifikacija}. Dobivene predikcije se koriste se za izradu modela ploče koji se prikazuje korisniku, kao na slici~\ref{podslk:model_ploce}. Korisnik može pregledati prikazane predikcije. S obzirom na to da klasifikacijski modeli mogu pogriješiti, korisniku je omogućeno i uređivati predložene predikcije. Korisnik nakon opcionalnog uređivanja može potvrditi predikcije. Nakon potvrde aplikacija primjenjuje pravila igre kako bi izračunala bodove svakog igrača. Izračunati bodovi se prikazuju korisniku zajedno sa prijašnjim bodovima te ukupnom sumom za svakog igrača, kao što je vidljivo na slici~\ref{podslk:bodovi}. Ovaj krug se ponavlja tri puta, jednom za svaku rundu. Na kraju treće runde i prikaza bodova aplikacija proglašava pobjednika, nakon čega se vraća na početni zaslon.
 		
 		\begin{figure}[htbp]
 			\centering
@@ -594,8 +630,8 @@
 			\label{slk:zasloni_aplikacije}
 		\end{figure}
 		
-		Drugi način rada funkcionira na isti način kao i prvi, ali ne prati ukupan rezultat igre kroz tri runde. Ovaj režim dakle radi analizu stanja igre u samo jednom trenutku, dakle nad samo jednom fotografijom. Nakon analize jednog stanja igre aplikacija se vraća na početni zaslon sa slike~\ref{slk:zasloni_aplikacije}a.
-
+		Drugi način rada funkcionira na isti način kao i prvi, ali ne prati ukupan rezultat igre kroz tri runde. Ovaj režim dakle radi analizu stanja igre u samo jednom trenutku, dakle nad samo jednom fotografijom. Nakon analize jednog stanja igre aplikacija se vraća na početni zaslon sa slike~\ref{podslk:applikacija_glavni}.
+		
 		\subsection{Programski jezik i radni okvir za razvoj aplikacije}
 			Iako je za razvoj Android mobilnih aplikacija danas prema Googleu preferiran programski jezik Kotlin~\cite{IBMChoosingLanguage}, u ovom je projektu korišten programski jezik Python. Glavni razlog za takvu odluku je činjenica da je kod za detekciju ploče korišten za izradu skupa podataka za učenje već bio napisan u Pythonu uz korištenje  biblioteke \textit{OpenCV}. Taj isti kod je također potreban za rad aplikacije prilikom detekcije ploče na fotografiji koju korisnik daje aplikaciji. Sama biblioteka \textit{OpenCV} je dostupna i za programski jezik Java, koji je interoperabilan s Kotlinom~\cite{IBMChoosingLanguage}. No, tada bi za razvoj aplikacije u programskom jeziku Kotlin bilo potrebno dio koda za detekciju ploče prevoditi iz programskog jezika Python u Kotlin, što bi bio nepotreban posao koji ne doprinosi ničemu. Alternativa bi bila pokretanje postojećeg Python koda unutar Kotlin aplikacije s pomoću alata \textit{Chaquopy}~\cite{PowerGatePythonAndroidDiscussion}, ali ta varijanta je djelovala jako nespretno te je s toga odbačena kao mogućnost.
 			
@@ -612,8 +648,8 @@
 			Tijekom razvoja mobilne aplikacije korištenje kamere te učitavanje fotografija iz galerije mobitela unutar aplikacije pokazalo se vrlo izazovnim. Radni okvir \textit{Kivy} nudi određena rješenja za korištenje kamere i galerije, ali ona su se pokazala vrlo nespretna i nepraktična. Konkretno, nakon detaljnog istraživanja ove teme jedino pronađeno rješenje za fotografiranje s pomoću kamere unutar radnog okvira \textit{Kivy} bilo je tako da se napravi snimka zaslona za vrijeme prijenosa slike s kamere uživo. To rješenje, osim što daje nekvalitetnu sliku, je također staro te je sama implementacija zbog istog komplicirana. S druge strane, pristup fotografijama na mobitelu je nešto jednostavniji, ali je vrlo nepraktičan. Problem je u tome da je pregled fotografija moguć kao pregled datoteka u datotečnom sustavu. To na primjer znači da na mobitelu s velikom količinom slika u istoj mapi pregled istih zahtjeva učitavanje opisa svih slika u toj mapi, što može biti vrlo sporo i nepraktično.
 			
 			Konačno rješenje koje je na kraju izabrano koristi nativne aplikacije za kameru i pregled galerije mobitela. Kako bi se to ostvarilo, potrebno je koristiti takozvani \textit{Intent}. Ukratko, \textit{Intent} je objekt s pomoću kojeg se može zatražiti određena akcija druge komponente ili aplikacije~\cite{AndroidIntent}. S obzirom na to da se radi o mehanizmu vezanom za Android okruženje, on je dostupan u programskim jezicima Java i Kotlin, ali ne i u programskom jeziku Python. Međutim, pomoću biblioteke \textit{PyJNIus}, ranije zvane \textit{JNIus}, moguće je pristupiti Java klasama s pomoću Javinog nativnog sučelja (\textit{engl. Java Native Interface (JNI)}) unutar Python koda~\cite{GitHubPyJNIus}. Ovo se pokazalo kao vrlo elegantno rješenje za jednokratno fotografiranje unutar aplikacije ili odabir fotografije iz galerije mobitela.
-		
-		\subsection{Alat \textit{Buildozer}}
+			
+			\subsection{Alat \textit{Buildozer}}
 			Kako bi se razvijena aplikacija mogla instalirati na mobitel, potrebno je izraditi takozvanu APK-datoteku. APK je standardni datotečni format koji se koristi za instalaciju i pokretanje aplikacija na Android operacijskom sustavu~\cite{KasperskyAPK}. Datoteka tipa APK sadrži sve ključne informacije potrebne da aplikacija radi ispravno, uključujući:
 			\begin{itemize}
 				\item informacije iz manifesta, poput naziva, verzije i prava pristupa,
@@ -623,16 +659,15 @@
 			\end{itemize}
 			
 			Kao najbolje rješenje za izradu datoteke tipa APK pokazao se alat \textit{Buildozer}. \textit{Buildozer} je razvojni alat za pretvaranje Python aplikacija u binarne pakete koji se mogu instalirati na raznim platformama, uključujući i Android uređaje~\cite{BuildozerDocker}. Za izradu datoteke tipa APK potrebno je napraviti datoteku \textit{buildozer.spec} koja sadrži ime, verziju, ovisnosti i postavke aplikacije~\cite{BuildozerDocker}. Alat \textit{Buildozer} održava tim koji je razvio i radni okvir \textit{Kivy} te je stoga i kompatibilan za rad s istim, iako nije ograničen na rad samo s tim radnim okvirom~\cite{BuildozerDocker}. Za jednostavnije korištenje alata \textit{Buildozer} on je korišten unutar \textit{Docker} kontejnera.
-			
+		
 		\subsection{Rezultantna aplikacija}
 			Konačna mobilna aplikacija dakle omogućuje automatsku analizu stanja igraće ploče društvene igre Kraljevstva na temelju ulazne fotografije. Fotografija može biti snimljena kamerom mobilnog uređaja ili odabrana iz galerije. Za oba načina koriste se nativne aplikacije uređaja. Nakon učitavanja slike aplikacija provodi detekciju i ispravljanje igraće ploče, izrezivanje pojedinih polja, klasifikaciju elemenata korištenjem kaskadno povezanih dubokih modela te izračun bodova u skladu s pravilima igre. Cjelokupna obrada izvodi se lokalno na mobilnom uređaju, bez potrebe za internetskom vezom ili korištenjem vanjskih servisa.
 			
 			Instalirana aplikacija zauzima približno 150 MB prostora za pohranu. Za aplikaciju ove namjene to nije malo, ali glavni razlozi za to su razvoj u programskom jeziku Python te lokalno korištenje modela zbog kojih je bilo potrebno uvesti dodatne vanjske pakete i ovisnosti u APK-datoteku. Brzina izvođenja aplikacije nije bila direktno mjerena. No, kada je aplikacija testirana na mobitelu Samsung Galaxy A55, performanse su bile zadovoljavajuće te je odgoda prilikom detekcije ploče i klasifikacije objekata bila u razumnim okvirima. No, ovakav pristup omogućio je rad bez mrežne povezanosti, uklonjena je ovisnost o vanjskoj infrastrukturi te doprinosi zaštiti privatnosti korisnika jer se fotografije ne šalju na udaljene poslužitelje.
 			
 			Dodatno vrijedi napomenuti da je prilikom testiranja same aplikacije uočeno je zanimljivo odstupanje u ponašanju sustava. Naime, u pojedinim slučajevima modeli integrirani u mobilnu aplikaciju daju pogrešne predikcije nad primjerima za koje su tijekom treniranja, validacije i testiranja u razvojnom okruženju ostvarivali točne rezultate. Kako bi se isključila mogućnost utjecaja procesa konverzije modela, provedena je usporedba između izvornih \textit{PyTorch} modela i njihovih inačica izvezenih u format ONNX. No, kod usporedbe nije uočena nikakva razlika u predikcijama modela. Stoga se može zaključiti da uzrok odstupanja u predikciji nije sama konverzija modela u format ONNX, već je riječ o drugom čimbeniku čiji uzrok tijekom izrade ovog rada nije utvrđen. Unatoč ovom neuobičajenom problemu, aplikacija još uvijek daje dovoljno dobre predikcije da njezino korištenje ima smisla. Mogućnost da korisnik može ispraviti predikciju modela unutar aplikacije dodatno umanjuje funkcionalne posljedice ovog problema.
-			
-%-------------------------------------------------------------------------------
 
+%-------------------------------------------------------------------------------
 
 %--- ZAKLJUČAK / CONCLUSION ----------------------------------------------------
 \chapter{Zaključak}
@@ -650,20 +685,12 @@
 		\item logikom za bodovanje igrača u društvenoj igri,
 		\item mobilne aplikacije za Android uređaje koja enkapsulira istrenirane modele, logiku igre i sustav za detekciju ploče.
 	\end{itemize}
-	
+
 	Razvijeni modeli postižu vrlo visoke performanse - većina modela ima savršenu točnost na cijelom skupu podataka za učenje. Mobilna aplikacija ostvaruje funkcionalnosti koje su bile zamišljene uz razumne memorijske i vremenske resurse. Uspješno je ostvareno lokalno korištenje klasifikacijskih modela na ograničenim resursima mobilnih uređaja.
 	
 	Valja napomenuti da postoje i slabe točke u razvijenom sustavu. Prije svega, zbog ograničenog skupa podataka za učenje validacijski i testni skupovi su dosta mali, pogotovo za neke od više specijaliziranih klasifikacijskih zadataka. Zbog toga treba biti svjestan da su procijenjene točnosti vjerojatno previše optimistične te ih treba uzeti sa zrnom soli. Dodatno, tijekom razvoja uočena su određena odstupanja između ponašanja klasifikacijskih modela u razvojnom okruženju i u mobilnoj aplikaciji. Sam uzrok tog odstupanja nije u potpunosti razjašnjen u ovom radu.
 	
 	Za budući rad postoji nekoliko smjerova u kojima bi se ovaj rad mogao unaprijediti. Jedan od mogućih smjerova daljnjeg razvoja je rad na povećanju skupa podataka za učenje te nadogradnja sustava za označavanje podataka za još brže i lakše označavanje podataka. Na primjer, za brže označavanje većeg skupa podataka mogli bi se koristiti postojeći klasifikacijski modeli te se kasnije samo ispravljati pogrešno klasificirani primjeri. Nadalje, vrijedi istražiti dodatne naprednije tehnike računalnog vida kako bi se postigle bolje performanse nekih klasifikacijskih modela koji nisu ostvarili savršenu točnost ili za koje se na većem skupu podataka pokaže da nemaju savršenu točnost. Također, jedan od ključnih smjerova za daljnju rad bilo bi istraživanje uzroka različitog ponašanja klasifikacijskih modela u razvojnom okruženju i unutar mobilne aplikacije. Još jedan smjer koji vrijedi razmotriti jest moguće nadogradnje za samu aplikaciju, kao na primjer korištenje video toka uživo umjesto snimanja pojedinačnih fotografija. Dodatno, valjalo bi razviti i verzije aplikacije prilagođene za druge platforme, kao naprimjer za iOS. S obzirom na to kako je aplikacija razvijena, takav korak bi zahtijevao relativno male izmjene koje se tiču isključivo specifičnosti vezanih za konkretne operacijske sustave.
-
-% Daljnji razvoj aplikacije - više mogućnosti, bolje sučelje
-
-% Pronaći bug
-
-% Razmotriti korištenje jednog modela, dijeljenje značajki, druge arhitekture i dizajne modela...
-
-
 
 %--- LITERATURA / REFERENCES ---------------------------------------------------
 
@@ -672,55 +699,49 @@
 \bibliography{literatura}
 
 
-%--- SAŽETAK / ABSTRACT --------------------------------------------------------
+%--- IZJAVA O UI / STATEMENT ON AI ---------------------------------------------
 
-% Sažetak na hrvatskom
-\begin{sazetak}
-	Ovaj rad opisuje razvoj sustava za automatsko bodovanje društvene igre Kraljevstva korištenjem metoda računalnog vida i dubokog učenja. Cilj rada bio je omogućiti jednostavan prijenos stanja igre s fizičke igraće ploče u digitalni oblik te automatizirati proces izračuna bodova kroz Android mobilnu aplikaciju.
+% Zadani naslov izjave se može promijeniti zadavanjem argumenta. / Default statement title may be changed by entering the argument here.
+\begin{izjavaoui}
 	
-	Razvijen je algoritam za detekciju uglova igraće ploče na fotografiji, perspektivnu transformaciju slike te izdvajanje pojedinačnih polja ploče. Za prepoznavanje elemenata igre izrađen je skup podataka dobiven fotografiranjem stvarnih konfiguracija ploče te je dodatno pojačan metodama augmentacije podataka. Implementirano je više konvolucijskih neuronskih mreža koje kaskadnim odlučivanjem klasificiraju različite vrste objekata na ploči, uključujući prazna polja, dvorce, kartice s brojevima i posebne kartice.
+	Tijekom izrade ovog diplomskog rada korišteni su alati temeljeni na umjetnoj inteligenciji, uključujući ChatGPT, Claude te GitHub Copilot integriran u razvojno okruženje Visual Studio Code. Njihova primjena bila je ograničena na pomoć pri razradi ideja, raspravi o mogućim algoritamskim pristupima, organizaciji programskog rješenja i strukture rada te kao pomoć pri razumijevanju pojedinih algoritama, biblioteka i programskih koncepata korištenih tijekom razvoja sustava.
 	
-	Uz sustav računalnog vida razvijen je i programski model pravila igre koji omogućuje automatski izračun bodova na temelju prepoznatog stanja ploče. Cjelokupna funkcionalnost integrirana je u Android mobilnu aplikaciju koja sav izračun obavlja lokalno na uređaju. Rezultati pokazuju da razvijeni sustav uspješno prepoznaje elemente igre i omogućuje učinkovitu automatizaciju procesa bodovanja.
-
-\end{sazetak}
-
-\begin{kljucnerijeci}
-	računalni vid, duboko učenje, konvolucijske neuronske mreže, obrada slike, Android aplikacija, društvene igre, Kraljevstva.
-\end{kljucnerijeci}
-
-
-% Abstract in English
-\begin{abstract}
-	This thesis presents the development of an automated scoring system for the board game Kingdoms using computer vision and deep learning techniques. The objective was to enable a simple transfer of game state information from a physical game board into a digital representation and to automate the score calculation process through an Android mobile application.
+	Prilikom razvoja programskog rješenja alati umjetne inteligencije korišteni su za predlaganje pojedinih dijelova izvornog koda, pomoć pri otklanjanju programskih pogrešaka te raspravu o mogućim implementacijskim rješenjima. Sav predloženi kod detaljno je pregledan, provjeren i prema potrebi izmijenjen prije uključivanja u konačno rješenje. Konačnu arhitekturu sustava, implementaciju, prilagodbe i odluke o dizajnu donio je autor rada.
 	
-	A board detection algorithm was developed to locate the corners of the game board in a photograph, perform perspective transformation, and extract individual board positions. A dataset was created by photographing real game configurations, while various data augmentation techniques were applied. Several convolutional neural networks were implemented, using a cascading decision-making process to classify different types of objects on the board, including empty cells, castles, numbered cards, and special cards.
+	Alati umjetne inteligencije također su korišteni kao pomoć pri jezičnom oblikovanju pojedinih dijelova teksta, uključujući ispravljanje gramatike i stila te izradu početnih verzija manjih formalnih dijelova rada, poput sažetka, zaključka i ove izjave. Ostali dijelovi diplomskog rada napisani su samostalno, dok su svi tekstovi nastali uz pomoć umjetne inteligencije pregledani, uređeni i prilagođeni od strane autora kako bi odgovarali stvarnom sadržaju rada i vlastitim zaključcima.
 	
-	In addition to the computer vision subsystem, an implementation of the game rules was developed to calculate scores based on the board state. The complete solution was integrated into an Android application that performs all computations locally. The results demonstrate that the proposed system successfully recognizes game elements and provides effective automation of the scoring process.
+	Ovime potvrđujem da sam tijekom izrade ovog diplomskog rada koristio umjetnu inteligenciju u skladu s Politikom primjerenog korištenja umjetne inteligencije na Fakultetu elektrotehnike i računarstva, te da umjetna inteligencija nije zamijenila moje kritičko razmišljanje niti moj doprinos.
 
-\end{abstract}
 
-\begin{keywords}
-	computer vision, deep learning, convolutional neural networks, image processing, Android application, board games, Kingdoms.
-\end{keywords}
+	% Ako ste koristili umjetnu inteligenciju prilikom izrade svog rada, na ovom mjestu navedite korištene tehnologije, njihove verzije i svrhu korištenja.
+	
+	% \paragraph{Osvrt na korištenje umjetne inteligencije:}
+	% Ukratko opišite opseg vlastitih intervencija i dorada generiranog sadržaja te, ako je primjenjivo, navedite procjenu točnosti, uočena ograničenja ili halucinacije korištene umjetne inteligencije.
+	
+	% \paragraph{Izjava o korištenju umjetne inteligencije:}
+	% Potvrđujem da sam tijekom izrade ovog diplomskog rada koristio umjetnu inteligenciju u skladu s Politikom primjerenog korištenja umjetne inteligencije na Fakultetu elektrotehnike i računarstva, te da umjetna inteligencija nije zamijenila moje kritičko razmišljanje niti moj doprinos.
+  
+\end{izjavaoui}
 
 
 %--- PRIVITCI / APPENDIX -------------------------------------------------------
 
 % Sva poglavlja koja slijede će biti označena slovom i riječi privitak / All following chapters will be denoted with an appendix and a letter
 \backmatter
+
 \chapter{Radni okvir za izradu skupa podataka i klasifikacijskih modela}
 \label{appendix:dataset_and_model_framework}
 
 	U ovom privitku je detaljnije objašnjeno kako koristiti kompletan izvorni kod koji je korišten u ovom radu. Sav izvorni kod zajedno sa skupom podataka za učenje je dostupan u GitHub repozitoriju na ovoj \href{https://github.com/PetarBelosevic/KingdomsApp}{poveznici}. Za rad s izvornim kodom potrebno je smjestiti se u direktorij \textit{code} Git repozitorija.
 	
-	\subsection{Rad sa skupom podataka za učenje}
+	\section{Rad sa skupom podataka za učenje}
 		U ovom poglavlju je detaljno objašnjeno kako koristiti izvorni kod za rad sa skupom podataka za učenje. To uključuje njegovu izradu, označavanje, podjelu, filtriranje, računanje statistika, pregled karakteristika skupa podataka te korištenje augmentacija.
-
+		
 		\subsection{Generiranje primjera za skup podataka za učenje}
 			Za izradu skupa podataka prvo je potrebno imati fotografije igraće ploče iz kojih će se izraditi skup podataka. Njih je potrebno spremiti u direktorij \textit{dataset/board/original\_board\_images}. 
 			
 			Sljedeće je potrebno pokrenuti skriptu \textit{dataset\_framework/image\_cropper.py}. Skripta koristi kod za detekciju, ispravljanje i izrezivanje ploče koji se nalazi u direktoriju \textit{board}. Prilikom pokretanja skripta obrađuje samo jednu sliku, stoga ju je potrebno pokrenuti više puta kako bi se svaka slika obradila. Dodatno, predefinirano ponašanje skripte je da se rezultat ne sprema. Razlog tome je da se korisniku omogući provjera ispravnosti detekcije ploče prije spremanja. Stoga je uputno za svaku sliku prvo pokrenuti skriptu bez uključene opcije spremanja, a tek nakon što je valjanost detekcije potvrđena ponovno pokrenuti skriptu s uključenom opcijom spremanja. Opcija spremanja se mijenja na kraju skripte kod poziva funkcije \textit{process\_new\_board\_image}. Alternativno se na kraju skripte može pozvati funkcija \textit{iterate\_all\_images} koja će prikazati rezultat svake slike bez spremanja. Nakon toga se skripta može ponovno pokretati uz pozivanje funkcije \textit{process\_new\_board\_image} uz uključenu opciju spremanja. Slika ispravljene ploče bit će spremljena u direktorij \textit{dataset/board/rectified\_boards}, dok će izrezana polja biti spremljena u direktorij\\\textit{dataset/cells/original\_cell\_images}. Ako se želi pregledati međurezultate obrade svake slike potrebno je podesiti argument \textit{show\_intermediate} na vrijednost \textit{True} kod poziva jedne od spomenutih funkcija.
-			
+		
 		\subsection{Označavanje podataka}
 			Za označavanje podataka dovoljno je pokrenuti skriptu\\\textit{dataset\_framework/labeling/labeling\_ui\_shortcuts.py} koja će otvoriti aplikaciju za označavanje. Aplikacije omogućava označavanje neoznačenih podataka te pregledavanje oznaka već označenih podataka. Samo sučelje je vrlo jednostavno te je već ranije prikazano na slici~\ref{slk:oznacavanje}. Oznake se spremaju u datoteku \textit{dataset/cells/original\_cell\_images/labels.json}.
 		
@@ -732,7 +753,7 @@
 			U slučaju korištenja normalizacije podataka u modelima moguće je izračunati potrebne srednje vrijednosti i standardne devijacije za svaki pogled u skupu za treniranje. U tu svrhu potrebno je pokrenuti skriptu \textit{dataset\_framework/dataset\_statistics.py}. Skripta će navedene statistike spremiti u datoteku \textit{stats.yaml} u pripadnom direktoriju svakog pogleda u skupu za treniranje. Normalizacija podataka nije bila korištena u radu, ali je ostavljena kao mogućnost radi kompletnosti. 
 			
 			Konačno se za cijeli skup podataka te svaki podskup može pregledati brojnost primjera svake klase, eventualno nedostajanje primjera iz neke klase te prisutnost nevažećih oznaka. Za to je potrebno pokrenuti skriptu \textit{dataset\_framework/dataset\_validation.py}.
-	
+		
 		\subsection{Testiranje augmentacija}
 			Za pregledavanje i testiranje korištenih augmentacija potrebno je pokrenuti skriptu \textit{dataset\_framework/augmentation/augmentation\_testing.py}. Skripta prvo odabire nasumičnu sliku iz skupa podataka za učenje. Zatim na njoj provodi svaku augmentaciju zasebno, što rezultira prikazom kakav je na slici~\ref{slk:augmentacije_zasebno}. Nakon toga se nad istom slikom generira 36 nasumičnih augmentacija na isti način kako se one primjenjuju prilikom treniranja modela. Rezultat tih 36 augmentacija je vidljiv na slici~\ref{slk:augmentacije_nasumicno}. Konačno se prikazuje augmentacija dodavanja obje vrste sjena. Za svaku vrstu sjena odabire se slučajna slika te se nad njom primjenjuje augmentacija dodavanja te vrste sjene 24 puta.
 	
@@ -749,11 +770,6 @@
 		Sav kod i resursi koje mobilna aplikacija direktno koristi nalaze se u direktoriju \textit{mobile\_app}. To uključuje glavnu logiku aplikacije, njezin dizajn, klasifikacijske modele u formatu ONNX, spremljene podatke o tekućoj igri, kod za procesiranje slike prilikom detekcije ploče, logiku društvene igre, pristup kameri i galeriji Android uređaja te upravljanje klasifikacijskim modelima. Ovdje se također nalazi \textit{buildozer.spec} datoteka koja je ključna za izradu datoteke tipa APK ove aplikacije.
 		
 		Za izradu nove datoteke tipa APK potrebno je pokrenuti \textit{Docker} kontejner za alat \textit{Buildozer} s kopiranim sadržajem direktorija \textit{mobile\_app} te pričekati da se datoteka izgradi. za detaljnije upute može se pogledati službena \href{https://hub.docker.com/r/kivy/buildozer}{dokumentacija} pripadne \textit{Docker} slike. U slučaju ponovnog pokretanja \textit{Docker} kontejnera radi ispravljanja grešaka u aplikaciji preporučljivo je izbrisati prethodno generirane pomoćne datoteke i direktorije koji su nastali kao nusprodukt izgradnje datoteke tipa APK.
-	
-
-
-
-% \Blindtext
 
 
 \end{document}
